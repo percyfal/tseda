@@ -4,6 +4,14 @@ pn.extension()
 
 
 def page(tsm):
+    wip = pn.pane.Alert(
+        """## WIP
+        
+        This page is currently a placeholder!
+        No computations have yet been implemented.
+        """
+    )
+
     md = pn.pane.Markdown(
         """
         ## GNN haplotype plots
@@ -18,4 +26,4 @@ def page(tsm):
         max_length=128,
     )
 
-    return pn.Column(md, sample_id)
+    return pn.Column(wip, md, sample_id)

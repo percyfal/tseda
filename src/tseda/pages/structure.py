@@ -2,7 +2,9 @@ import panel as pn
 
 
 def page(tsm):
-    return pn.pane.Markdown(
+    wip = pn.pane.Alert("## WIP\nThis page is currently a placeholder!")
+
+    md = pn.pane.Markdown(
         """
         ## GNN Heatmap plots
 
@@ -11,3 +13,5 @@ def page(tsm):
         - PCA plot
         """
     )
+
+    return pn.Column(wip, md)
