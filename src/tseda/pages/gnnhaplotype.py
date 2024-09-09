@@ -1,3 +1,10 @@
+"""Genealogical Nearest Neighbors (GNN) analysis, individual haplotype
+plots.
+
+Draw GNN proportions for a selected individual over the haplotypes.
+
+"""
+
 import panel as pn
 
 pn.extension()
@@ -8,7 +15,6 @@ def page(tsm):
         """## WIP
         
         This page is currently a placeholder!
-        No computations have yet been implemented.
         """
     )
 
@@ -26,4 +32,11 @@ def page(tsm):
         max_length=128,
     )
 
-    return pn.Column(wip, md, sample_id)
+    md_results = pn.pane.Markdown(
+        """## Results
+
+        Bar plot of GNN proportions for the selected individual.
+        """
+    )
+
+    return pn.Column(wip, md, sample_id, md_results)

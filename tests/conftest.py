@@ -10,7 +10,7 @@ dirname = os.path.abspath(os.path.dirname(__file__))
 
 @pytest.fixture
 def ts():
-    return tskit.load(os.path.join(dirname, "data/test.ts"))
+    return tskit.load(os.path.join(dirname, "data/test.trees"))
 
 
 @pytest.fixture

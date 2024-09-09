@@ -15,8 +15,8 @@ anyio==4.4.0
     # via jupyter-server
 appdirs==1.4.4
     # via stdpopsim
+    # via tsbrowse
     # via tseda
-    # via tsqc
 argon2-cffi==23.1.0
     # via jupyter-server
 argon2-cffi-bindings==21.2.0
@@ -61,8 +61,8 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via dask
+    # via tsbrowse
     # via tseda
-    # via tsqc
 cloudpickle==3.0.0
     # via dask
 colorcet==3.1.0
@@ -78,8 +78,8 @@ contourpy==1.2.1
 cycler==0.12.1
     # via matplotlib
 daiquiri==3.2.5.1
+    # via tsbrowse
     # via tseda
-    # via tsqc
 dask==2024.8.1
     # via dask-expr
     # via datashader
@@ -87,8 +87,7 @@ dask==2024.8.1
 dask-expr==1.1.11
     # via dask
 datashader==0.16.3
-    # via tseda
-    # via tsqc
+    # via tsbrowse
 debugpy==1.8.5
     # via ipykernel
 decorator==5.1.1
@@ -98,8 +97,8 @@ defusedxml==0.7.1
 demes==0.2.3
     # via msprime
 diskcache==5.6.3
+    # via tsbrowse
     # via tseda
-    # via tsqc
 executing==2.0.1
     # via stack-data
 fasteners==0.19
@@ -119,6 +118,9 @@ geoviews==1.12.0
     # via tseda
 h11==0.14.0
     # via httpcore
+hatch-vcs==0.4.0
+hatchling==1.25.0
+    # via hatch-vcs
 holoviews==1.19.1
     # via geoviews
     # via hvplot
@@ -131,8 +133,8 @@ humanize==4.10.0
     # via stdpopsim
     # via tszip
 hvplot==0.10.0
+    # via tsbrowse
     # via tseda
-    # via tsqc
 idna==3.7
     # via anyio
     # via httpx
@@ -304,6 +306,7 @@ packaging==24.1
     # via datashader
     # via geopandas
     # via geoviews
+    # via hatchling
     # via holoviews
     # via hvplot
     # via ipykernel
@@ -317,6 +320,7 @@ packaging==24.1
     # via pytest
     # via qtconsole
     # via qtpy
+    # via setuptools-scm
     # via xarray
 pandas==2.2.2
     # via bokeh
@@ -335,8 +339,8 @@ panel==1.4.5
     # via geoviews
     # via holoviews
     # via hvplot
+    # via tsbrowse
     # via tseda
-    # via tsqc
 param==2.1.1
     # via datashader
     # via geoviews
@@ -349,16 +353,20 @@ parso==0.8.4
     # via jedi
 partd==1.4.2
     # via dask
+pathspec==0.12.1
+    # via hatchling
 pexpect==4.9.0
     # via ipython
 pillow==10.4.0
     # via bokeh
     # via datashader
     # via matplotlib
+pip==24.2
 platformdirs==4.2.2
     # via jupyter-core
     # via pooch
 pluggy==1.5.0
+    # via hatchling
     # via pytest
 pooch==1.8.2
     # via geodatasets
@@ -393,7 +401,7 @@ pyproj==3.6.1
     # via cartopy
     # via geopandas
     # via geoviews
-pyright==1.1.377
+pyright==1.1.379
 pyshp==2.3.1
     # via cartopy
 pyslim==1.0.4
@@ -454,6 +462,9 @@ send2trash==1.8.3
     # via jupyter-server
 setuptools==73.0.1
     # via jupyterlab
+    # via setuptools-scm
+setuptools-scm==8.1.0
+    # via hatch-vcs
 shapely==2.0.6
     # via cartopy
     # via geopandas
@@ -508,17 +519,19 @@ traitlets==5.14.3
     # via nbconvert
     # via nbformat
     # via qtconsole
+trove-classifiers==2024.7.2
+    # via hatchling
+tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@de1eb0e7f110a72e37d310b560c08d2b7ebd36cd
+    # via tseda
 tskit==0.5.8
     # via msprime
     # via pyslim
+    # via tsbrowse
     # via tseda
-    # via tsqc
     # via tszip
-tsqc @ git+https://github.com/tskit-dev/tsqc@7baeb30cd03020a1c58b0feabccdeff6e52d3424
-    # via tseda
 tszip==0.2.5
+    # via tsbrowse
     # via tseda
-    # via tsqc
 types-python-dateutil==2.9.0.20240821
     # via arrow
 typing-extensions==4.12.2

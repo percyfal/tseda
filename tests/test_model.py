@@ -109,3 +109,10 @@ def test_get_individuals(tsm):
     assert data is not None
     assert data.shape == (21, 10)
     assert "geometry" in data.columns
+
+
+def test_sample_sets_view(tsm):
+    assert tsm.sample_sets_view().index.name == "id"
+    assert tsm.sample_sets_view().shape == (6, 2)
+    tsm.create_sample_set("test")
+    assert tsm.sample_sets_view().shape == (7, 2)

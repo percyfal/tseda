@@ -1,116 +1,31 @@
+"""Sample sets editor page.
+
+Panel showing a simple sample set editor page. The page consists of
+three main components: a map showing the distribution of individuals,
+a table showing the sample sets, and a table showing the individuals.
+
+The sample sets table allows the user to edit the name and color of
+each sample set. In addition, new sample sets can be added that allows
+the user to reassign individuals to different sample sets in the
+individuals table.
+
+The individuals table allows the user to toggle individuals for
+inclusion/exclusion, and reassign individuals to new sample set
+combinations.
+"""
+
 import matplotlib.colors as mcolors
-import pandas as pd
 import panel as pn
+import param
+
+from .map import GeoMap
 
 pn.extension("tabulator")
 
 palette = list(mcolors.CSS4_COLORS.keys())
 
-# TODO: function for multiselection widget
-# def get_selected_data(selected_ids=None):
-#     if selected_ids is not None:
-#         for ind in tsm.individuals:
-#             tsm.deselect_individual(ind.id)
-#         for sid in selected_ids:
-#             tsm.select_individual(sid)
-#     df = tsm.get_individuals(astype="df", deselected=True)
-#     return df[
-#         [
-#             "name",
-#             "population",
-#             "sample_set_id",
-#             "selected",
-#             "longitude",
-#             "latitude",
-#         ]
-#     ]
 
-
-def make_new_sample_set_button():
-    create_button = pn.widgets.Button(
-        name="➕ Create new sample set",
-        button_type="primary",
-    )
-    return create_button
-
-
-def make_sample_sets_table(sample_sets_df):
-    sample_editors = {}
-    sample_editors["color"] = {
-        "type": "list",
-        "values": palette,
-        "valueLookup": True,
-    }
-    sample_formatters = {"color": {"type": "color"}}
-    sample_sets_table = pn.widgets.Tabulator(
-        sample_sets_df,
-        layout="fit_columns",
-        selectable=True,
-        pagination="remote",
-        page_size=10,
-        editors=sample_editors,
-        formatters=sample_formatters,
-    )
-    return sample_sets_table
-
-
-def make_individuals_table(df, sample_sets_df):
-    ind_editors = {}
-    for col in df.columns:
-        ind_editors[col] = None
-    ind_editors["sample_set_id"] = {
-        "type": "list",
-        "values": sample_sets_df.index.values.tolist(),
-        "valuesLookup": True,
-    }
-    ind_editors["selected"] = {
-        "type": "list",
-        "values": [False, True],
-        "valuesLookup": True,
-    }
-    ind_formatters = {"selected": {"type": "tickCross"}}
-
-    individuals_table = pn.widgets.Tabulator(
-        df,
-        layout="fit_columns",
-        selectable=True,
-        pagination="remote",
-        page_size=20,
-        editors=ind_editors,
-        formatters=ind_formatters,
-        text_align={"selected": "center"},
-    )
-
-    return individuals_table
-
-
-def sample_sets_md():
-    return pn.pane.Markdown(
-        """
-        ## Sample sets
-
-        The name and color of each sample set are editable. In the
-        individuals table, you can assign individuals to sample set
-        ids.
-
-        """
-    )
-
-
-def individuals_md():
-    return pn.pane.Markdown(
-        """
-        ## Individuals
-
-        Assign individuals to sample sets and toggle their selection
-        status for analyses and plots.
-        """
-    )
-
-
-def page(tsm):
-    sample_sets_df = pd.DataFrame(tsm.sample_sets).set_index(["id"])
-
+class IndividualsTable(param.Parameterized):
     columns = [
         "name",
         "population",
@@ -119,50 +34,160 @@ def page(tsm):
         "longitude",
         "latitude",
     ]
-    df = tsm.get_individuals(astype="df", deselected=True)[columns]
+    individuals_editors = {k: None for k in columns}
+    individuals_editors["sample_set_id"] = {
+        "type": "list",
+        "values": [],
+        "valueLookup": True,
+    }
+    individuals_editors["selected"] = {
+        "type": "list",
+        "values": [False, True],
+        "valuesLookup": True,
+    }
+    individuals_formatters = {"selected": {"type": "tickCross"}}
 
-    sample_sets_table = make_sample_sets_table(sample_sets_df)
+    page_size = param.Selector(objects=[10, 20, 50, 100])
 
-    def update_sample_set(event):
-        if event.column == "color":
-            tsm.sample_sets[event.row].color = event.value
-        elif event.column == "name":
-            tsm.sample_sets[event.row].name = event.value
+    def __init__(self, tsm, **kwargs):
+        super().__init__(**kwargs)
+        self.tsm = tsm
 
-    sample_sets_table.on_edit(update_sample_set)
+        self._table = self.tsm.get_individuals(astype="df", deselected=True)[
+            self.columns
+        ]
+        self.individuals_editors["sample_set_id"]["values"] = (
+            tsm.sample_sets_view().index.tolist()
+        )
 
-    def update_individual(event):
-        if event.column == "selected":
-            tsm.toggle_individual(event.row)
-        elif event.column == "sample_set_id":
-            tsm.update_individual_sample_set(event.row, event.value)
+    @property
+    def table(self):
+        return self._table
 
-    individuals_table = make_individuals_table(df, sample_sets_df)
-    individuals_table.on_edit(update_individual)
+    def update_individual(self, event):
+        self.tsm.update_individual(event.row, event.column, event.value)
+        self._table = self.tsm.get_individuals(astype="df", deselected=True)[
+            self.columns
+        ]
+        self.individuals_editors["sample_set_id"]["values"] = (
+            self.tsm.sample_sets_view().index.tolist()
+        )
 
-    new_sample_set_name = pn.widgets.TextInput(
-        name="New sample set name",
-        placeholder="Enter a string here...",
-        max_length=128,
+    @property
+    def tooltip(self):
+        return pn.widgets.TooltipIcon(
+            value=(
+                "Individuals table with columns relevant for modifying plots. "
+                "The `population_id` column is immutable and displays the  "
+                "population id of the individual, as assigned during "
+                "inference. The `sample_set_id` column is editable and can "
+                "be assigned to a sample set id from the sample set table "
+                "through a drop-down list by clicking on a cell. "
+                "The `selected` column indicates whether an individual is  "
+                "included in the analyses or not, and can be toggled to  "
+                "exclude/include individuals of choice. Individuals lacking "
+                "geolocation coordinates (`longitude`/`latitude`) are not  "
+                "displayed in the GeoMap plots."
+            ),
+        )
+
+    @param.depends("page_size")
+    def panel(self):
+        table = pn.widgets.Tabulator(
+            self.table,
+            layout="fit_columns",
+            selectable=True,
+            pagination="remote",
+            page_size=self.page_size,
+            editors=self.individuals_editors,
+            formatters=self.individuals_formatters,
+            text_align={"selected": "center"},
+        )
+        table.on_edit(self.update_individual)
+        return pn.Column(self.tooltip, table)
+
+
+class SampleSetTable(param.Parameterized):
+    sample_editors = {
+        "color": {
+            "type": "list",
+            "values": list(mcolors.CSS4_COLORS.keys()),
+            "valueLookup": True,
+        }
+    }
+    sample_formatters = {"color": {"type": "color"}}
+
+    create_sample_set_textinput = param.String(
+        doc="New sample set name. Press Enter (⏎) to create.",
+        default="",
+        label="New sample set name",
     )
-    # TODO: alert is not responsive
-    alert = pn.pane.Alert("", alert_type="success", visible=False)
 
-    def create_new_sample_set(event):
-        name = new_sample_set_name.value
-        if name is not None and name != "":
-            newid = tsm.create_sample_set(name)
-            alert.object = f"Successfully created sample set {newid}:{name}"
-            alert.visible = True
+    def __init__(self, tsm, **kwargs):
+        super().__init__(**kwargs)
+        self.tsm = tsm
+        self.update_table()
 
-    create_button = make_new_sample_set_button()
-    create_button.on_click(create_new_sample_set)
+    @property
+    def tooltip(self):
+        return pn.widgets.TooltipIcon(
+            value=(
+                "The name and color of each sample set are editable. In the "
+                "color column, select a color from the dropdown list. In the "
+                "individuals table, you can assign individuals to sample sets."
+            ),
+        )
 
-    return pn.Column(
-        sample_sets_md(),
-        new_sample_set_name,
-        create_button,
-        sample_sets_table,
-        individuals_md(),
-        individuals_table,
+    def update_table(self, **kwargs):
+        self._table = pn.widgets.Tabulator(
+            self.tsm.sample_sets_view(),
+            layout="fit_columns",
+            selectable=True,
+            pagination="remote",
+            page_size=10,
+            editors=self.sample_editors,
+            formatters=self.sample_formatters,
+        )
+        self._table.on_edit(self.update_sample_set)
+
+    @property
+    def table(self):
+        self.update_table()
+        return self._table
+
+    def update_sample_set(self, event):
+        self.tsm.update_sample_set(event.row, event.column, event.value)
+
+    @param.depends("create_sample_set_textinput")
+    def panel(self, *args, **kwargs):
+        if self.create_sample_set_textinput:
+            self.tsm.create_sample_set(self.create_sample_set_textinput)
+            self.create_sample_set_textinput = ""
+        return pn.Column(self.tooltip, self.table)
+
+
+def page(tsm):
+    geomap = GeoMap(tsm)
+    ss_table = SampleSetTable(tsm)
+    ind_table = IndividualsTable(tsm)
+
+    layout = pn.Column(
+        pn.Row(
+            pn.Column(
+                geomap.param,
+                geomap.plot,
+            ),
+            pn.Column(
+                ss_table.param,
+                ss_table.panel,
+            ),
+        ),
+        pn.Row(
+            pn.Column(
+                ind_table.param,
+                ind_table.panel,
+            ),
+        ),
     )
+
+    return layout

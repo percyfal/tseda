@@ -11,8 +11,8 @@
 
 -e file:.
 appdirs==1.4.4
+    # via tsbrowse
     # via tseda
-    # via tsqc
 asciitree==0.3.3
     # via zarr
 attrs==24.2.0
@@ -36,8 +36,8 @@ charset-normalizer==3.3.2
     # via requests
 click==8.1.7
     # via dask
+    # via tsbrowse
     # via tseda
-    # via tsqc
 cloudpickle==3.0.0
     # via dask
 colorcet==3.1.0
@@ -50,8 +50,8 @@ contourpy==1.2.1
 cycler==0.12.1
     # via matplotlib
 daiquiri==3.2.5.1
+    # via tsbrowse
     # via tseda
-    # via tsqc
 dask==2024.8.1
     # via dask-expr
     # via datashader
@@ -59,11 +59,10 @@ dask==2024.8.1
 dask-expr==1.1.11
     # via dask
 datashader==0.16.3
-    # via tseda
-    # via tsqc
+    # via tsbrowse
 diskcache==5.6.3
+    # via tsbrowse
     # via tseda
-    # via tsqc
 fasteners==0.19
     # via zarr
 fonttools==4.53.1
@@ -81,8 +80,8 @@ holoviews==1.19.1
 humanize==4.10.0
     # via tszip
 hvplot==0.10.0
+    # via tsbrowse
     # via tseda
-    # via tsqc
 idna==3.7
     # via requests
 jinja2==3.1.4
@@ -168,8 +167,8 @@ panel==1.4.5
     # via geoviews
     # via holoviews
     # via hvplot
+    # via tsbrowse
     # via tseda
-    # via tsqc
 param==2.1.1
     # via datashader
     # via geoviews
@@ -239,15 +238,15 @@ tornado==6.4.1
     # via bokeh
 tqdm==4.66.5
     # via panel
+tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@de1eb0e7f110a72e37d310b560c08d2b7ebd36cd
+    # via tseda
 tskit==0.5.8
+    # via tsbrowse
     # via tseda
-    # via tsqc
     # via tszip
-tsqc @ git+https://github.com/tskit-dev/tsqc@7baeb30cd03020a1c58b0feabccdeff6e52d3424
-    # via tseda
 tszip==0.2.5
+    # via tsbrowse
     # via tseda
-    # via tsqc
 typing-extensions==4.12.2
     # via panel
 tzdata==2024.1

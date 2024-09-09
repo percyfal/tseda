@@ -1,6 +1,5 @@
 [project]
 name = "tseda"
-version = "0.1.0"
 description = "Tree sequence exploratory data analysis"
 authors = [
     { name = "Per Unneberg", email = "per.unneberg@scilifelab.se" }
@@ -16,29 +15,43 @@ dependencies = [
     "diskcache~=5.6.3",
     "appdirs~=1.4.4",
     "geoviews~=1.12.0",
-    "datashader~=0.16.3",
     "cartopy~=0.23.0",
     "geopandas~=1.0.1",
     "dask[dataframe]~=2024.8.1",
     "hvplot~=0.10.0",
     "xyzservices~=2024.6.0",
-    "tsqc @ git+https://github.com/tskit-dev/tsqc",
+    "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse",
 ]
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.11"
+dynamic = ["version"]
 
 [build-system]
-requires = ["pdm-backend"]
-build-backend = "pdm.backend"
+requires = ["hatchling", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+source = "vcs"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.hooks.vcs]
+version-file = "src/tseda/_version.py"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/tseda"]
 
 [tool.rye]
 managed = true
 dev-dependencies = [
     "jupyter~=1.0.0",
-    "pyright~=1.1.377",
+    "pyright~=1.1.379",
     "pytest~=8.3.2",
     "stdpopsim~=0.2.0",
     "geodatasets~=2024.7.0",
+    "pip~=24.2",
+    "hatch-vcs~=0.4.0",
 ]
 
 [project.scripts]

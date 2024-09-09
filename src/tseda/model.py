@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import tskit
 from bokeh.palettes import Set3
-from tsqc.model import TSModel
+from tsbrowse.model import TSModel
 
 logger = daiquiri.getLogger("tseda")
 
@@ -25,6 +25,7 @@ class DataTypes(Enum):
 
 
 def decode_metadata(obj):
+    """Decode metadata from bytes to dict"""
     if not hasattr(obj, "metadata"):
         return None
     if isinstance(obj.metadata, bytes):
@@ -42,6 +43,7 @@ def parse_metadata(obj, regex):
 
 
 def palette(cmap=Set3[12], n=12, start=0, end=1):
+    """Make a small colorblind-friendly palette"""
     import matplotlib
 
     linspace = np.linspace(start, end, n)
@@ -114,15 +116,19 @@ class Individual(tskit.Individual):
 
     @property
     def samples(self):
+        """Return samples (nodes) associated with individual"""
         return self.nodes
 
     def toggle(self) -> None:
+        """Toggle selection status"""
         self.selected = not self.selected
 
     def select(self) -> None:
+        """Select individual"""
         self.selected = True
 
     def deselect(self) -> None:
+        """Deselect individual"""
         self.selected = False
 
 
@@ -148,12 +154,15 @@ class Sample(tskit.Node):
         self.sample_set_id = self.population
 
     def toggle(self) -> None:
+        """Toggle selection status"""
         self.selected = not self.selected
 
     def select(self) -> None:
+        """Select sample"""
         self.selected = True
 
     def deselect(self) -> None:
+        """Deselect sample"""
         self.selected = False
 
 
@@ -169,8 +178,6 @@ class TSEdaModel(TSModel):
             SampleSet(id=pop.id, population=pop)
             for pop in self.ts.populations()
         ]
-        # TODO: Make hidden and write properties to filter on
-        # selected/deselected?
         self.individuals = self._init_individuals()
         self.samples = self._init_samples()
 
@@ -190,6 +197,28 @@ class TSEdaModel(TSModel):
         return result
 
     def _get_data(self, attr="individuals", astype="list", deselected=True):
+        """Generic function to get data from individuals or samples.
+
+        Individuals and samples are stored as lists of objects. This
+        function returns a list, DataFrame or GeoDataFrame of
+        individuals / samples.
+
+        Parameters
+
+        attr: str
+            The attribute to get data from. Can be "individuals" or
+            "samples".
+        astype: str
+            The type of data to return. Can be "list", "df" or "gdf".
+        deselected: bool
+            If True, return all individuals / samples. If False, return
+            only selected individuals / samples.
+
+        Returns
+
+        data: list / DataFrame / GeoDataFrame
+            The data requested.
+        """
         if deselected:
             data = self.__getattribute__(attr)
         else:
@@ -207,8 +236,19 @@ class TSEdaModel(TSModel):
             )
 
     def get_individuals(self, astype="list", deselected=True):
-        """
-        Returns a list / DataFrame / GeoDataFrame of individuals.
+        """Return a list / DataFrame / GeoDataFrame of individuals.
+
+        Parameters
+
+        astype: str
+            The type of data to return. Can be "list", "df" or "gdf".
+        deselected: bool
+            If True, return all individuals. If False, return only
+
+        Returns
+
+        data: list / DataFrame / GeoDataFrame
+            The data requested.
         """
         data = self._get_data("individuals", astype, deselected)
         if isinstance(data, list):
@@ -217,7 +257,21 @@ class TSEdaModel(TSModel):
 
     def get_samples(self, astype="list", deselected=True):
         """
-        Returns a list / DataFrame of samples.
+        Return a list / DataFrame of samples.
+
+        Parameters
+
+        astype: str
+            The type of data to return. Can be "list" or "df".
+        deselected: bool
+            If True, return all samples. If False, return only selected
+            samples.
+
+        Returns
+
+            data: list / DataFrame
+                The data requested.
+
         """
         if astype == DataTypes.GEO_DATAFRAME.value:
             raise ValueError("geo data frame not supported for samples")
@@ -227,33 +281,52 @@ class TSEdaModel(TSModel):
         return data.set_index(["id"])
 
     def update_individual_sample_set(self, ind_id, sample_set_id):
+        """Update the sample set of an individual and its samples."""
         self.individuals[ind_id].sample_set_id = sample_set_id
         for sid in self.individuals[ind_id].samples:
             self.samples[sid].sample_set_id = sample_set_id
 
     def toggle_individual(self, ind_id):
+        """Toggle the selection status of an individual and its samples."""
         self.individuals[ind_id].toggle()
         for sid in self.individuals[ind_id].samples:
             self.samples[sid].toggle()
 
     def deselect_individual(self, ind_id):
+        """Deselect an individual and its samples"""
         self.individuals[ind_id].deselect()
         for sid in self.individuals[ind_id].samples:
             self.samples[sid].deselect()
 
     def select_individual(self, ind_id):
+        """Select an individual and its samples"""
         self.individuals[ind_id].select()
         for sid in self.individuals[ind_id].samples:
             self.samples[sid].select()
 
+    def update_individual(self, index, prop, value):
+        """Update individual property. Wrapper for updating individual
+        on property 'selected' or 'sample_set_id'
+        """
+        if prop == "selected":
+            self.toggle_individual(index)
+        elif prop == "sample_set_id":
+            print(f"Setting {index} to {value}")
+            self.update_individual_sample_set(index, value)
+
     def create_sample_set(self, name):
+        """Create a new sample set.
+
+        Add a new sample set where the sample id is the sequential
+        number following the last sample set id.
+        """
         newid = len(self.sample_sets)
         ss = SampleSet(id=np.int32(newid), name=name)
         self.sample_sets.append(ss)
         return newid
 
     def make_sample_sets(self):
-        """Make sample sets"""
+        """Wrapper to make current sample sets from selected individuals"""
         sample_sets = {}
         samples = []
         for sample in self.samples:
@@ -265,7 +338,22 @@ class TSEdaModel(TSModel):
             sample_sets[sample.sample_set_id].append(sample.id)
         return samples, sample_sets
 
-    # TODO: make cached_property
+    def update_sample_set(self, index, prop, value):
+        """Update sample set property 'color' or 'name'"""
+        if prop == "color":
+            self.sample_sets[index].color = value
+        elif prop == "name":
+            self.sample_sets[index].name = value
+
+    def get_sample_sets(self, indexes=None):
+        """Return sample sets"""
+        samples, sample_sets = self.make_sample_sets()
+        if indexes:
+            return [sample_sets[i] for i in indexes]
+        return [sample_sets[i] for i in sample_sets]
+
+    # TODO: make cached_property, taking into account selected sample
+    # sets
     def gnn(self):
         """
         Returns a GNN object for the tree sequence
@@ -296,3 +384,9 @@ class TSEdaModel(TSModel):
         for d in data:
             result.append(self.sample_sets[d.sample_set_id].color)
         return np.array(result)
+
+    def sample_sets_view(self):
+        """
+        Returns a sample sets view of the current state
+        """
+        return pd.DataFrame(self.sample_sets).set_index(["id"])
