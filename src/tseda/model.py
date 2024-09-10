@@ -9,6 +9,7 @@ TODO:
 - functions that access / get sample sets have slightly confusing /
   misleading names atm
 - simplify haplotype_gnn function
+- cache computations!
 
 """
 
@@ -327,8 +328,19 @@ class TSEdaModel(TSModel):
         if prop == "selected":
             self.toggle_individual(index)
         elif prop == "sample_set_id":
-            print(f"Setting {index} to {value}")
             self.update_individual_sample_set(index, value)
+
+    def toggle_sample_set(self, index):
+        """Toggle the selection status of all individuals in a sample set"""
+        for ind in self.individuals:
+            if ind.sample_set_id == index:
+                self.toggle_individual(ind.id)
+
+    def batch_update_sample_set(self, pop_from, ssto):
+        """Batch update all individuals in a population to ssto"""
+        for ind in self.individuals:
+            if ind.population == pop_from:
+                self.update_individual_sample_set(ind.id, ssto)
 
     def create_sample_set(self, name):
         """Create a new sample set.

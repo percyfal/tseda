@@ -25,7 +25,10 @@ Development packages are added by applying the `--dev` flag:
 	rye add dev-package --dev
 	rye remove package
 	rye remove dev-package --dev
-	
+
+After modifying dependencies, make sure to run `rye sync` to update
+the virtual environment.
+
 [rye]: https://rye.astral.sh/
 [postmodern python]: https://rdrn.me/postmodern-python/ 
 
@@ -54,3 +57,17 @@ The steps can be run separately
 Alternativel, you can run the entire toolchain with
 
 	rye run all
+
+## Development with small test data set
+
+Development is facilitated by loading the small data set that is
+provided and reloading upon code changes:
+
+	rye run python -m tseda tests/data/test.trees
+	
+The test data is a modified simulation of the [out of Africa]
+demographic model (stdpopsim model `OutOfAfrica_3G09`), amended with
+three outgroup species. The geolocations are dummy locations meant to
+reflect typical metadata.
+
+[out of africa]: https://github.com/popsim-consortium/stdpopsim/blob/main/stdpopsim/catalog/HomSap/demographic_models.py

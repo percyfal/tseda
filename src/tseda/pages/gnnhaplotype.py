@@ -35,7 +35,7 @@ class GNNHaplotype(param.Parameterized):
         default=0, bounds=(0, None), doc="Individual ID (0-indexed)"
     )
     window_size = param.Integer(
-        default=None, bounds=(1, None), doc="Size of window"
+        default=10000, bounds=(1, None), doc="Size of window"
     )
 
     def __init__(self, tsm, **kwargs):
@@ -74,13 +74,6 @@ class GNNHaplotype(param.Parameterized):
 
 
 def page(tsm):
-    wip = pn.pane.Alert(
-        """## WIP
-        
-        This page is currently a placeholder!
-        """
-    )
-
     md = pn.pane.Markdown(
         """
         ## GNN haplotype plots
@@ -90,5 +83,4 @@ def page(tsm):
     )
 
     gnn = GNNHaplotype(tsm)
-
-    return pn.Column(wip, md, gnn.param, gnn.panel)
+    return pn.Column(md, pn.Row(gnn.param[0], gnn.param[1]), gnn.panel)

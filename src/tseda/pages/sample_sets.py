@@ -16,7 +16,11 @@ combinations.
 TODO:
 
 - linked brushing between map and GNN bars
-- reassign an entire population to a new sample set
+- data view model is inconsistent
+- add try / except clauses for invalid parameters - alternatively set
+  the bounds on the parameters, but that would require updating every
+  time a new sample set is added which may not be possible?
+- change from/to params to param.NumericTuple?
 """
 
 import matplotlib.colors as mcolors
@@ -27,10 +31,11 @@ from .map import GeoMap
 
 pn.extension("tabulator")
 
-palette = list(mcolors.CSS4_COLORS.keys())
-
 
 class IndividualsTable(param.Parameterized):
+    """Class to hold individuals. The Panel view builds on
+    the tabulator extension."""
+
     columns = [
         "name",
         "population",
@@ -52,17 +57,39 @@ class IndividualsTable(param.Parameterized):
     }
     individuals_formatters = {"selected": {"type": "tickCross"}}
 
-    page_size = param.Selector(objects=[10, 20, 50, 100])
+    page_size = param.Selector(objects=[10, 20, 50, 100], default=20)
+    toggle = param.Integer(
+        default=None, bounds=(0, None), doc="Toggle sample set by index"
+    )
+    population_from = param.Integer(
+        default=None,
+        bounds=(0, None),
+        doc=(
+            "Batch reassign individual from this `population` "
+            "to the index given in the `sample_set_to` parameter"
+        ),
+    )
+    sample_set_to = param.Integer(
+        default=None,
+        bounds=(0, None),
+        doc=(
+            "Batch reassign individuals in the index given in "
+            "the `sample_set_from` parameter to this sample set. "
+            "Update will only take place when both fields are set."
+        ),
+    )
 
     def __init__(self, tsm, **kwargs):
         super().__init__(**kwargs)
         self.tsm = tsm
+        self._update_table()
 
+    def _update_table(self):
         self._table = self.tsm.get_individuals(astype="df", deselected=True)[
             self.columns
         ]
         self.individuals_editors["sample_set_id"]["values"] = (
-            tsm.sample_sets_view().index.tolist()
+            self.tsm.sample_sets_view().index.tolist()
         )
 
     @property
@@ -71,12 +98,7 @@ class IndividualsTable(param.Parameterized):
 
     def update_individual(self, event):
         self.tsm.update_individual(event.row, event.column, event.value)
-        self._table = self.tsm.get_individuals(astype="df", deselected=True)[
-            self.columns
-        ]
-        self.individuals_editors["sample_set_id"]["values"] = (
-            self.tsm.sample_sets_view().index.tolist()
-        )
+        self._update_table()
 
     @property
     def tooltip(self):
@@ -96,8 +118,17 @@ class IndividualsTable(param.Parameterized):
             ),
         )
 
-    @param.depends("page_size")
+    @param.depends("page_size", "toggle", "sample_set_to")
     def panel(self):
+        if self.toggle is not None:
+            self.tsm.toggle_sample_set(self.toggle)
+            self._update_table()
+        if self.sample_set_to is not None:
+            if self.population_from is not None:
+                self.tsm.batch_update_sample_set(
+                    self.population_from, self.sample_set_to
+                )
+                self._update_table()
         table = pn.widgets.Tabulator(
             self.table,
             layout="fit_columns",

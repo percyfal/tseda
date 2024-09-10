@@ -10,6 +10,9 @@ colors can be modified in the sample set editor. Hovering over the bars
 in the plot shows the GNN proportions of each sample set for a given
 sample.
 
+TODO:
+
+- linked brushing between the map and the GNN plot
 """
 
 import hvplot.pandas  # noqa
@@ -28,6 +31,18 @@ hv.extension("bokeh")
 
 
 class VBar(param.Parameterized):
+    """Make VBar plot of GNN output."""
+
+    sort_order = param.List(
+        default=[],
+        item_type=str,
+        doc=(
+            "Change sort order within sample sets. Default is "
+            "to sort by sample index. Provide a list of strings "
+            "where items correspond to sample set names."
+        ),
+    )
+
     def __init__(self, tsm, **kwargs):
         super().__init__(**kwargs)
         self.tsm = tsm
@@ -75,6 +90,7 @@ class VBar(param.Parameterized):
         (individual, population) grouping"""
         return self._factors
 
+    @param.depends("sort_order")
     def plot(self):
         """Make vbar plot. Holoviews does not support grouping by default
         so we need to implement it using low-level bokeh API."""
@@ -90,7 +106,14 @@ class VBar(param.Parameterized):
                 )
             )
         )
-
+        data = self.data
+        if len(self.sort_order) > 0:
+            sort_order = (
+                ["sample_set_id"] + self.sort_order + ["sample_id", "id"]
+            )
+            data.sort_values(sort_order, axis=0, inplace=True)
+            self._factors = data["x"].values
+        source = ColumnDataSource(data)
         self._fig = figure(
             x_range=FactorRange(
                 *self.factors, group_padding=0.1, subgroup_padding=0
@@ -100,8 +123,6 @@ class VBar(param.Parameterized):
             tools="xpan,xwheel_zoom,box_select,save,reset",
         )
         self._fig.add_tools(hover)
-
-        source = ColumnDataSource(self.data)
         self._fig.vbar_stack(
             self.groups,
             source=source,
@@ -144,6 +165,7 @@ def page(tsm):
             pn.Param(geomap.param, width=200),
             geomap.plot,
         ),
+        vbar.param,
         vbar.plot,
     )
 

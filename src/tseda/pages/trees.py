@@ -3,8 +3,9 @@
 TODO:
 
 - fix bounds of position / treeid parameters
-- add css styling of nodes using sample set colormap
 - add more options to style tree
+- add index parameter to select tree by index - needs to be mutually
+  exclusive with position parameter
 """
 
 import ast
@@ -43,6 +44,16 @@ class Tree(param.Parameterized):
         self._tree = self.tsm.ts.first()
 
     @property
+    def default_css(self):
+        """Default css styles for tree nodes"""
+        styles = []
+        for ss in self.tsm.sample_sets:
+            s = f".node.p{ss.id} > .sym " + "{" + f"fill: {ss.color}" + "}"
+            styles.append(s)
+        css_string = " ".join(styles)
+        return css_string
+
+    @property
     def tree(self):
         self._tree = self.tsm.ts.at(self.position)
         return self._tree
@@ -51,7 +62,11 @@ class Tree(param.Parameterized):
     def plot(self):
         options = eval_options(self.options)
         return pn.pane.HTML(
-            self.tree.draw_svg(size=(self.width, self.height), **options)
+            self.tree.draw_svg(
+                size=(self.width, self.height),
+                style=self.default_css,
+                **options,
+            )
         )
 
 
