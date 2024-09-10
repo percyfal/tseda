@@ -68,8 +68,8 @@ def test_toggle_individual(tsm):
     assert tsm.samples[tsm.individuals[0].samples[1]].selected
 
 
-def test_gnn(tsm2):
-    gnn = tsm2.gnn()
+def test_gnn(tsmhs):
+    gnn = tsmhs.gnn()
     assert gnn is not None
     assert gnn.shape == (36, 3)
     assert sorted(gnn.index.names) == sorted(
@@ -116,3 +116,25 @@ def test_sample_sets_view(tsm):
     assert tsm.sample_sets_view().shape == (6, 2)
     tsm.create_sample_set("test")
     assert tsm.sample_sets_view().shape == (7, 2)
+
+
+def test_make_sample_sets(tsm):
+    samples, sample_sets = tsm.make_sample_sets()
+    assert len(samples) == 42
+    assert len(sample_sets) == 6
+    assert len(sample_sets[0]) == 12
+    assert len(sample_sets[3]) == 2
+
+
+def test_get_sample_sets(tsm):
+    sample_sets = tsm.get_sample_sets()
+    assert sample_sets is not None
+    for i, ss in enumerate(sample_sets):
+        print(ss)
+        # assert sample_sets[i].id == i
+    # assert sample_sets[0].population == 1
+    # assert sample_sets[0].metadata is not None
+    # assert sample_sets[0].color == sample_sets[0].colormap[1]
+    # data = tsm.get_sample_sets(astype="df")
+    # assert data is not None
+    # assert data.shape == (6, 5)

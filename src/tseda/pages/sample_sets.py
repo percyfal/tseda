@@ -12,6 +12,11 @@ individuals table.
 The individuals table allows the user to toggle individuals for
 inclusion/exclusion, and reassign individuals to new sample set
 combinations.
+
+TODO:
+
+- linked brushing between map and GNN bars
+- reassign an entire population to a new sample set
 """
 
 import matplotlib.colors as mcolors
@@ -171,7 +176,17 @@ def page(tsm):
     ss_table = SampleSetTable(tsm)
     ind_table = IndividualsTable(tsm)
 
+    doc = __doc__.split("\n")[1:]
+    for i, line in enumerate(doc):
+        if line == "":
+            doc[i] = "<br>"
+
     layout = pn.Column(
+        pn.pane.Markdown("""## Sample set editor"""),
+        pn.pane.Alert(
+            """Example of using module docstring to document page"""
+        ),
+        pn.pane.Markdown(" ".join(doc)),
         pn.Row(
             pn.Param(geomap.param, width=200),
             geomap.plot,

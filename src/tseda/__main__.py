@@ -136,7 +136,7 @@ def setup_logging(log_level, no_log_filter):
 )
 def main(path, port, show, log_level, no_log_filter):
     """
-    Run the tsqc server.
+    Run the tseda server.
     """
     setup_logging(log_level, no_log_filter)
 

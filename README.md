@@ -1,8 +1,8 @@
 # tseda
 
 Tree Sequence Exploratory Data Analysis. Currently builds on code base
-in [tsqc](https://github.com/tskit-dev/tsqc) and retains some of the
-functionality. tseda adds functionality to view the spatial
+in [tsbrowse](https://github.com/tskit-dev/tsbrowse) and retains some
+of the functionality. tseda adds functionality to view the spatial
 distribution of population data and connect that information to the
 genetic structure of the populations.
 

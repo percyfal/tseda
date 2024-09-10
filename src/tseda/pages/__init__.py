@@ -5,6 +5,7 @@ from . import (
     sample_sets,  # noqa: F401
     stats,  # noqa: F401
     structure,  # noqa: F401
+    trees,  # noqa: F401
 )
 
 PAGES_MAP = {
@@ -14,4 +15,5 @@ PAGES_MAP = {
     "Structure overview": structure,
     "Individual GNN plots": gnn,
     "Haplotype GNN plots": gnnhaplotype,
+    "Trees": trees,
 }

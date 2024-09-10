@@ -101,9 +101,7 @@ class VBar(param.Parameterized):
         )
         self._fig.add_tools(hover)
 
-        print(self.data)
         source = ColumnDataSource(self.data)
-        print(source)
         self._fig.vbar_stack(
             self.groups,
             source=source,

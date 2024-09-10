@@ -1,3 +1,17 @@
+"""Tseda data model module.
+
+Class definition for data model underlying all data views. Subclasses
+tsbrowse.model.TSModel and adds functionality to deal with the
+manipulation of sample sets.
+
+TODO:
+
+- functions that access / get sample sets have slightly confusing /
+  misleading names atm
+- simplify haplotype_gnn function
+
+"""
+
 import dataclasses
 import json
 import re
@@ -10,6 +24,8 @@ import pandas as pd
 import tskit
 from bokeh.palettes import Set3
 from tsbrowse.model import TSModel
+
+from .gnn import windowed_genealogical_nearest_neighbours
 
 logger = daiquiri.getLogger("tseda")
 
@@ -346,7 +362,7 @@ class TSEdaModel(TSModel):
             self.sample_sets[index].name = value
 
     def get_sample_sets(self, indexes=None):
-        """Return sample sets"""
+        """Return list of sample sets and their samples."""
         samples, sample_sets = self.make_sample_sets()
         if indexes:
             return [sample_sets[i] for i in indexes]
@@ -362,6 +378,61 @@ class TSEdaModel(TSModel):
         for sample_set in self.sample_sets:
             if sample_set.name == name:
                 return sample_set
+
+    def colormap(self, by_sample=False, deselected=True):
+        """
+        Get colormap for individuals or samples
+        """
+        result = []
+        if by_sample:
+            data = self.get_samples(deselected=deselected)
+        else:
+            data = self.get_individuals(deselected=deselected)
+        for d in data:
+            result.append(self.sample_sets[d.sample_set_id].color)
+        return np.array(result)
+
+    def sample_sets_view(self):
+        """
+        Returns a sample sets view of the current state
+        """
+        return pd.DataFrame(self.sample_sets).set_index(["id"])
+
+    # TODO: make cached_property, taking into account selected sample
+    # sets
+    # TODO: Needs simplification
+    def haplotype_gnn(self, focal_ind, windows=None):
+        """Calculate haplotype GNNs for an individual `focal_ind`"""
+        samples, sample_sets = self.make_sample_sets()
+        individual = self.individuals[focal_ind]
+        hap = windowed_genealogical_nearest_neighbours(
+            self.ts, individual.samples, sample_sets, windows=windows
+        )
+        dflist = []
+        sample_set_names = [self.sample_sets[i].name for i in sample_sets]
+        if windows is None:
+            for i in range(hap.shape[0]):
+                x = pd.DataFrame(hap[i, :])
+                x = x.T
+                x.columns = sample_set_names
+                x["haplotype"] = i
+                x["start"] = 0
+                x["end"] = self.ts.sequence_length
+                dflist.append(x)
+        else:
+            for i in range(hap.shape[1]):
+                x = pd.DataFrame(hap[:, i, :])
+                x.columns = sample_set_names
+                x["haplotype"] = i
+                x["start"] = windows[0:-1]
+                x["end"] = windows[1:]
+                dflist.append(x)
+
+        df = pd.concat(dflist)
+        # df = df[df.haplotype == (haplotype - 1)]
+        df.set_index(["haplotype", "start", "end"], inplace=True)
+
+        return df
 
     # TODO: make cached_property, taking into account selected sample
     # sets
@@ -382,22 +453,3 @@ class TSEdaModel(TSModel):
         df["sample_id"] = df.index
         df.set_index(["sample_set_id", "sample_id", "id"], inplace=True)
         return df
-
-    def colormap(self, by_sample=False, deselected=True):
-        """
-        Get colormap for individuals or samples
-        """
-        result = []
-        if by_sample:
-            data = self.get_samples(deselected=deselected)
-        else:
-            data = self.get_individuals(deselected=deselected)
-        for d in data:
-            result.append(self.sample_sets[d.sample_set_id].color)
-        return np.array(result)
-
-    def sample_sets_view(self):
-        """
-        Returns a sample sets view of the current state
-        """
-        return pd.DataFrame(self.sample_sets).set_index(["id"])
