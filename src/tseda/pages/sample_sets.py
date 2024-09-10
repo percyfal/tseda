@@ -173,18 +173,16 @@ def page(tsm):
 
     layout = pn.Column(
         pn.Row(
-            pn.Column(
-                geomap.param,
-                geomap.plot,
-            ),
-            pn.Column(
-                ss_table.param,
-                ss_table.panel,
-            ),
+            pn.Param(geomap.param, width=200),
+            geomap.plot,
         ),
         pn.Row(
             pn.Column(
-                ind_table.param,
+                pn.Param(ss_table.param, width=200),
+                ss_table.panel,
+            ),
+            pn.Column(
+                pn.Param(ind_table.param, width=200),
                 ind_table.panel,
             ),
         ),

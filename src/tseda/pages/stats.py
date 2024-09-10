@@ -4,7 +4,10 @@ TODO:
 - add more stats
 - add generic stats class and let oneway and multiway inherit from it
 - add xwheel zoom and pan
-- fix coloring of NdOverlay plots
+- catch error / alert when using mode="branch" on uncalibrated trees
+- multiway plot: self.data should not return data but set self._data
+  to avoid recalculation of stats when colormap is updated (change
+  data function for oneway for consistency)
 
 """
 
@@ -16,6 +19,7 @@ import numpy as np
 import pandas as pd
 import panel as pn
 import param
+from holoviews.plotting.util import process_cmap
 
 hv.extension("bokeh")
 
@@ -59,7 +63,7 @@ class OnewayStats(param.Parameterized):
     )
     sample_sets = param.String(
         default="[0,1]",
-        doc="Comma-separated list of sample sets (0-indexed) to compare.",
+        doc="Comma-separated list of sample sets (0-indexed) to plot.",
     )
 
     def __init__(self, tsm, **kwargs):
@@ -67,6 +71,15 @@ class OnewayStats(param.Parameterized):
         self.tsm = tsm
         self.sample_sets_list = []
         self.windows = []
+
+    @property
+    def tooltip(self):
+        return pn.widgets.TooltipIcon(
+            value=(
+                "Oneway statistical plot. The colors can be modified "
+                "in the sample set editor page."
+            )
+        )
 
     @property
     @param.depends("statistic", "window_size", "sample_sets")
@@ -95,11 +108,22 @@ class OnewayStats(param.Parameterized):
                 self.tsm.sample_sets[i].name for i in self.sample_sets_list
             ],
         )
-        data_dict = {ss: hv.Curve(data[ss]) for ss in data.columns}
-        return pn.pane.HoloViews(
-            hv.NdOverlay(data_dict, kdims="sample set"),
-            sizing_mode="stretch_width",
+        position = hv.Dimension(
+            "position",
+            label="Genome position (bp)",
+            range=(0, self.tsm.ts.sequence_length),
         )
+        statistic = hv.Dimension("statistic", label=self.statistic)
+
+        data_dict = {
+            ss: hv.Curve((self.windows, data[ss]), position, statistic).opts(
+                color=self.tsm.get_sample_set_by_name(ss).color
+            )
+            for ss in data.columns
+        }
+        kdims = [hv.Dimension("ss", label="Sample set")]
+        holomap = hv.HoloMap(data_dict, kdims=kdims)
+        return holomap.overlay("ss").opts(legend_position="right")
 
 
 class MultiwayStats(param.Parameterized):
@@ -127,6 +151,18 @@ class MultiwayStats(param.Parameterized):
             "(0-indexed) indexes to compare."
         ),
     )
+    cmaps = {
+        cm.name: cm
+        for cm in hv.plotting.util.list_cmaps(
+            records=True, category="Categorical", reverse=False
+        )
+        if cm.name.startswith("glasbey")
+    }
+    colormap = param.Selector(
+        objects=list(cmaps.keys()),
+        default="glasbey_dark",
+        doc="Holoviews colormap for sample set pairs",
+    )
 
     def __init__(self, tsm, **kwargs):
         super().__init__(**kwargs)
@@ -134,9 +170,24 @@ class MultiwayStats(param.Parameterized):
         self.sample_sets_list = []
         self.windows = []
         self.indexes_list = []
+        self.colormap_list = []
 
     @property
-    @param.depends("statistic", "window_size", "sample_sets", "indexes")
+    def tooltip(self):
+        return pn.widgets.TooltipIcon(
+            value=(
+                "Multiway statistical plot. The colors can be modified "
+                "in the colormap dropdown list."
+            )
+        )
+
+    @property
+    @param.depends(
+        "statistic",
+        "window_size",
+        "sample_sets",
+        "indexes",
+    )
     def data(self):
         self.windows = make_windows(
             self.window_size, self.tsm.ts.sequence_length
@@ -161,6 +212,7 @@ class MultiwayStats(param.Parameterized):
         else:
             raise ValueError("Invalid statistic")
 
+    @param.depends("colormap")
     def panel(self):
         data = pd.DataFrame(
             self.data,
@@ -174,24 +226,43 @@ class MultiwayStats(param.Parameterized):
                 for i, j in self.indexes_list
             ],
         )
-        data_dict = {sspair: hv.Curve(data[sspair]) for sspair in data.columns}
-        return pn.pane.HoloViews(
-            hv.NdOverlay(data_dict, kdims="sample set combination"),
-            sizing_mode="stretch_width",
+        position = hv.Dimension(
+            "position",
+            label="Genome position (bp)",
+            range=(0, self.tsm.ts.sequence_length),
         )
-        return pn.pane.HoloViews(
-            hv.Curve(self.data), sizing_mode="stretch_width"
-        )
+        statistic = hv.Dimension("statistic", label=self.statistic)
+        cmap = self.cmaps[self.colormap]
+        colormap_list = process_cmap(cmap.name, provider=cmap.provider)
+        data_dict = {
+            sspair: hv.Curve(
+                (self.windows, data[sspair]), position, statistic
+            ).opts(color=colormap_list[i])
+            for i, sspair in enumerate(data.columns)
+        }
+        kdims = [hv.Dimension("sspair", label="Sample set combination")]
+        holomap = hv.HoloMap(data_dict, kdims=kdims)
+        return holomap.overlay("sspair").opts(legend_position="right")
 
 
 def page(tsm):
-    # TODO: Make it possible to view more than one statistic at a time
+    # TODO: Make it possible to view more than one statistic at a time?
     oneway = OnewayStats(tsm)
     multiway = MultiwayStats(tsm)
 
     return pn.Column(
-        oneway.param,
-        oneway.panel,
-        multiway.param,
-        multiway.panel,
+        pn.Row(
+            pn.Param(oneway.param, width=200),
+            pn.Column(
+                oneway.tooltip,
+                oneway.panel,
+            ),
+        ),
+        pn.Row(
+            pn.Param(multiway.param, width=200),
+            pn.Column(
+                multiway.tooltip,
+                multiway.panel,
+            ),
+        ),
     )

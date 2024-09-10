@@ -352,6 +352,17 @@ class TSEdaModel(TSModel):
             return [sample_sets[i] for i in indexes]
         return [sample_sets[i] for i in sample_sets]
 
+    def get_sample_set(self, index):
+        """Return single sample set"""
+        samples, sample_sets = self.make_sample_sets()
+        return sample_sets[index]
+
+    def get_sample_set_by_name(self, name):
+        """Return single sample set by name"""
+        for sample_set in self.sample_sets:
+            if sample_set.name == name:
+                return sample_set
+
     # TODO: make cached_property, taking into account selected sample
     # sets
     def gnn(self):

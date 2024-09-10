@@ -8,6 +8,7 @@ TODO:
 
 - Add linked brushing between the map and other panel objects /
   widgets
+- Add sizing_mode="stretch_width" to map
 
 """
 
