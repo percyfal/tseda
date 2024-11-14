@@ -29,6 +29,7 @@ def test_individuals_table(individuals_table):
     assert individuals_table.sample2ind[ind.nodes[0]] == 5
     assert individuals_table.sample2ind[ind.nodes[1]] == 5
     _, ss = individuals_table.sample_sets()
+    print(type(ss))
     assert len(ss) == 6
     assert len(ss[0]) == 12
     samples = list(individuals_table.samples())

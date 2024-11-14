@@ -21,6 +21,7 @@ dependencies = [
     "hvplot~=0.11.1",
     "xyzservices~=2024.6.0",
     "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@2faab76ad3a1f4bb51e6a39ce1c244dc1ac8209b",
+    "tsdate~=0.2.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

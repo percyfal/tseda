@@ -1,4 +1,6 @@
 from . import (
+    coalescence,
+    coalescence_counts,
     ignn,
     individuals,
     overview,
@@ -16,6 +18,8 @@ PAGES = [
     ignn.IGNNPage,
     stats.StatsPage,
     trees.TreesPage,
+    coalescence.CoalescenceRatesPage,
+    coalescence_counts.CoalescenceCountsPage,
 ]
 
 PAGES_MAP = {page.key: page for page in PAGES}
