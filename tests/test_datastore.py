@@ -38,3 +38,12 @@ def test_individuals_table(individuals_table):
 def test_datastore(ds):
     print(ds.color)
     print(ds.sample_sets_table.color_by_name)
+
+
+def test_indtab(tsm):
+    indtab = datastore.make_individuals_table(tsm)
+    with pytest.raises(TypeError):
+        indtab.sample_sets_list = [1, 2, 3]
+        # indtab.sample_sets_list = datastore.make_sample_sets_list(tsm)
+    print(indtab.table)
+    print(indtab.sample_sets_list)

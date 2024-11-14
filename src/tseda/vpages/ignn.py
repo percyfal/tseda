@@ -31,6 +31,7 @@ from tseda import config
 
 from .core import View, make_windows
 from .map import GeoMap
+from .sample_sets import SampleSetsEditor
 
 hv.extension("bokeh")
 pn.extension(sizing_mode="stretch_both")
@@ -264,13 +265,14 @@ class IGNNPage(View):
     geomap = param.ClassSelector(class_=GeoMap)
     vbar = param.ClassSelector(class_=VBar)
     gnnhaplotype = param.ClassSelector(class_=GNNHaplotype)
+    sample_sets_editor = param.ClassSelector(class_=SampleSetsEditor)
 
     def __init__(self, **params):
         super().__init__(**params)
         self.geomap = GeoMap(datastore=self.datastore)
         self.vbar = VBar(datastore=self.datastore)
         self.gnnhaplotype = GNNHaplotype(datastore=self.datastore)
-        self.sample_sets = self.datastore.sample_sets_table
+        self.sample_sets_editor = SampleSetsEditor(datastore=self.datastore)
 
     def __panel__(self):
         return pn.Column(
@@ -286,5 +288,5 @@ class IGNNPage(View):
             self.geomap.sidebar,
             self.gnnhaplotype.sidebar,
             self.vbar.sidebar,
-            self.sample_sets.sidebar_table,
+            self.sample_sets_editor.sidebar_table,
         )

@@ -117,7 +117,10 @@ class Individual(tskit.Individual):
     longitude: np.float64 = None
     latitude: np.float64 = None
     name: str = None
+    population_name: str = None
     sample_set_id: np.int32 = None
+    sample_set_name: str = None
+    sample_set_color: str = None
     selected: bool = True
 
     def __init__(self, individual: tskit.Individual):

@@ -13,12 +13,24 @@ from .gnn import windowed_genealogical_nearest_neighbours
 logger = daiquiri.getLogger("tseda")
 
 
+def make_sample_sets_list(tsm):
+    result = []
+    for ts_pop in tsm.ts.populations():
+        ss = SampleSet(id=ts_pop.id, population=ts_pop, predefined=True)
+        result.append(ss)
+    return result
+
+
 def make_individuals_table(tsm):
     result = []
     for ts_ind in tsm.ts.individuals():
         ind = Individual(individual=ts_ind)
         result.append(ind)
-    return IndividualsTable(table=pd.DataFrame(result))
+    tab = IndividualsTable(
+        table=pd.DataFrame(result),
+        sample_sets_list_=make_sample_sets_list(tsm),
+    )
+    return tab
 
 
 def make_sample_sets_table(tsm):
@@ -46,7 +58,10 @@ class IndividualsTable(Viewer):
     columns = [
         "name",
         "population",
+        "population_name",
         "sample_set_id",
+        "sample_set_name",
+        "sample_set_color",
         "selected",
         "longitude",
         "latitude",
@@ -65,6 +80,7 @@ class IndividualsTable(Viewer):
     formatters = {"selected": {"type": "tickCross"}}
 
     table = param.DataFrame()
+    sample_sets_list_ = param.List(default=[], item_type=SampleSet)
 
     page_size = param.Selector(
         objects=[10, 20, 50, 100, 200, 500],
@@ -95,7 +111,17 @@ class IndividualsTable(Viewer):
     def __init__(self, **params):
         super().__init__(**params)
         self.table.set_index(["id"], inplace=True)
+        try:
+            ss_d = {ss.id: ss for ss in self.sample_sets_list_}
+            for i in self.table.index:
+                ss = ss_d[self.table.loc[i, "sample_set_id"]]
+                self.table.loc[i, "population_name"] = ss.name
+                self.table.loc[i, "sample_set_name"] = ss.name
+                self.table.loc[i, "sample_set_color"] = ss.color
+        except KeyError:
+            logger.error("Sample set not found")
         self.data = self.param.table.rx()
+        self.sample_sets_list = self.param.sample_sets_list_.rx()
 
     @property
     def tooltip(self):
@@ -165,13 +191,18 @@ class IndividualsTable(Viewer):
             self.toggle = None
         if self.sample_set_to is not None:
             if self.population_from is not None:
-                try:
-                    self.table.loc[
-                        self.table["population"] == self.population_from,  # pyright: ignore[reportIndexIssue]
-                        "sample_set_id",
-                    ] = self.sample_set_to
-                except IndexError:
-                    logger.error("No such population %i", self.population_from)
+                ii = self.data.rx.value["population"] == self.population_from
+                self.data.rx.value.loc[
+                    ii,
+                    "sample_set_id",
+                ] = self.sample_set_to
+
+                self.table.loc[ii, "sample_set_name"] = (
+                    self.sample_sets_list.rx.value[self.sample_set_to].name
+                )
+                self.table.loc[ii, "sample_set_color"] = (
+                    self.sample_sets_list.rx.value[self.sample_set_to].color
+                )
             else:
                 logger.info("No population defined")
         data = self.data[self.columns]
@@ -382,6 +413,10 @@ class DataStore(Viewer):
         df = pd.concat(dflist)
         df.set_index(["haplotype", "start", "end"], inplace=True)
         return df
+
+    def update_individuals_table(self, column, row, value):
+        print("editing sample sets")
+        print(column, row, value)
 
     # Not needed? Never used?
     def __panel__(self):
