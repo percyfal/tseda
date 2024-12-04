@@ -17,9 +17,8 @@ to produce the output `data.trees.tseda`. To launch the web app run
 
 `python -m tseda serve data.trees.tseda`
 
-
 | <img src="./static/gnnpage.png" width="50%" alt="Screenshot of the GNN tab"> |
-|:--:| 
+|:--:|
 | Screenshot of the prototype GNN viewer |
 
 ## Installation
@@ -47,6 +46,7 @@ python -m pip install git+https://github.com/tforest/tseda
 
 The package comes with test data files corresponding to an
 uncompressed trees file (`test.trees`), a tszipped trees file
-(`test.trees.tsz`), and a tseda file (`test.trees.tseda`) residing in
-`tests/data`. To try out the web app, load the file
-`tests/data/test.trees.tseda` as described above.
+(`test.trees.tsz`), and two tseda files (`test.trees.tseda` and
+time-calibrated `test.trees.tsdate.tseda`) residing in `tests/data`.
+To try out the web app, load the file `tests/data/test.trees.tseda` as
+described above.

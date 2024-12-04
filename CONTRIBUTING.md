@@ -146,42 +146,40 @@ class NucDivPlot(View):
     )
 
     @param.depends("window_size")
-	def __panel__(self):
+    def __panel__(self):
         windows = make_windows(self.window_size, self.datastore.tsm.ts.sequence_length)
-		data = pd.DataFrame(self.datastore.tsm.ts.diversity(windows=windows))
+        data = pd.DataFrame(self.datastore.tsm.ts.diversity(windows=windows))
         data.columns = ["pi"]
         return pn.panel(data.hvplot.line(y="pi"))
 
-	def sidebar(self):
-	    return pn.Card(
-			self.param.window_size,
-			collapsed=True,
-			title="Nucleotide diversity plotting options",
+    def sidebar(self):
+        return pn.Card(
+            self.param.window_size,
+            collapsed=True,
+            title="Nucleotide diversity plotting options",
             header_background=config.SIDEBAR_BACKGROUND,
             active_header_background=config.SIDEBAR_BACKGROUND,
             styles=config.VCARD_STYLE,
         )
-
 ```
 
 Then we modify the `MyAnalysisPage` class as follows:
 
 ```python
-
 class MyAnalysisPage(View):
     key = "myanalysis"
     title = "My Analysis"
-	nucdiv = param.ClassSelector(class_=NucDivPlot)
-	
-	def __init__(self, **kwargs):
-	    super().__init__(**kwargs)
-		self.nucdiv = NucDivPlot(datastore=self.datastore)
+    nucdiv = param.ClassSelector(class_=NucDivPlot)
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.nucdiv = NucDivPlot(datastore=self.datastore)
 
     def __panel__(self):
         return pn.Column(self.nucdiv)
-		
-	def sidebar(self):
-		return pn.Column(self.nucdiv.sidebar)
+
+    def sidebar(self):
+        return pn.Column(self.nucdiv.sidebar)
 ```
 
 Reload the app and hopefully you will see an added plot and sidebar.

@@ -8,7 +8,6 @@ TODO:
 import ast
 
 import holoviews as hv
-import numpy as np
 import panel as pn
 import param
 
@@ -25,14 +24,26 @@ def eval_options(options):
 
 
 class Tree(View):
-    tree_index = param.Integer(
-        default=0, bounds=(0, None), doc="Get tree by zero-based index"
+    search_by = pn.widgets.ToggleGroup(
+        name="Search By",
+        options=["Position", "Tree Index"],
+        behavior="radio",
+        button_type="primary",
     )
+
+    tree_index = param.Integer(default=0, doc="Get tree by zero-based index")
     position = param.Integer(
-        default=None, bounds=(1, None), doc="Get tree at genome position (bp)"
+        default=None, doc="Get tree at genome position (bp)"
     )
-    width = param.Integer(default=800, doc="Width of the tree plot")
-    height = param.Integer(default=800, doc="Height of the tree plot")
+
+    warning_pane = pn.pane.Alert(
+        "The input for position or tree index is out of bounds.",
+        alert_type="warning",
+        visible=False,
+    )
+
+    width = param.Integer(default=750, doc="Width of the tree plot")
+    height = param.Integer(default=520, doc="Height of the tree plot")
     options = param.String(
         default="{'y_axis': 'time', 'node_labels': {}}",
         doc=(
@@ -51,11 +62,15 @@ class Tree(View):
 
     def next_tree(self):
         self.position = None
-        self.tree_index += 1  # pyright: ignore[reportOperatorIssue]
+        self.tree_index = min(
+            self.datastore.tsm.ts.num_trees - 1, int(self.tree_index) + 1
+        )
+        # pyright: ignore[reportOperatorIssue]
 
     def prev_tree(self):
         self.position = None
-        self.tree_index = max(0, self.tree_index - 1)  # pyright: ignore[reportOperatorIssue]
+        self.tree_index = max(0, int(self.tree_index) - 1)
+        # pyright: ignore[reportOperatorIssue]
 
     @property
     def default_css(self):
@@ -72,6 +87,24 @@ class Tree(View):
         css_string = " ".join(styles)
         return css_string
 
+    @param.depends("position", "tree_index", watch=True)
+    def check_inputs(self):
+        if self.position is not None and (
+            int(self.position) < 0
+            or int(self.position) > self.datastore.tsm.ts.sequence_length
+        ):
+            self.warning_pane.visible = True
+            raise ValueError
+        if (
+            self.tree_index is not None
+            and int(self.tree_index) < 0
+            or int(self.tree_index) > self.datastore.tsm.ts.num_trees
+        ):
+            self.warning_pane.visible = True
+            raise ValueError
+        else:
+            self.warning_pane.visible = False
+
     @param.depends(
         "width", "height", "position", "options", "symbol_size", "tree_index"
     )
@@ -80,13 +113,13 @@ class Tree(View):
         if self.position is not None:
             tree = self.datastore.tsm.ts.at(self.position)
             self.tree_index = tree.index
-            position = self.position
         else:
             tree = self.datastore.tsm.ts.at_index(self.tree_index)
-            position = int(np.mean(tree.get_interval()))
+        pos1 = int(tree.get_interval()[0])
+        pos2 = int(tree.get_interval()[1]) - 1
         return pn.Column(
             pn.pane.Markdown(
-                f"## Tree index {self.tree_index} (position {position})"
+                f"## Tree index {self.tree_index} (position {pos1} - {pos2})"
             ),
             pn.pane.HTML(
                 tree.draw_svg(
@@ -102,22 +135,35 @@ class Tree(View):
             ),
         )
 
-    def sidebar(self):
-        return pn.Column(
+    def update_sidebar(self):
+        """Dynamically update the sidebar based on searchBy value."""
+        if self.search_by.value == "Tree Index":
+            self.position = None
+            fields = [self.param.tree_index]
+        else:
+            fields = [self.param.position]
+
+        sidebar_content = pn.Column(
             pn.Card(
-                self.param.position,
-                self.param.tree_index,
+                self.search_by,
+                *fields,
                 self.param.width,
                 self.param.height,
                 self.param.options,
                 self.param.symbol_size,
-                collapsed=True,
+                collapsed=False,
                 title="Tree plotting options",
                 header_background=config.SIDEBAR_BACKGROUND,
                 active_header_background=config.SIDEBAR_BACKGROUND,
                 styles=config.VCARD_STYLE,
             ),
+            self.warning_pane,
         )
+        return sidebar_content
+
+    @param.depends("search_by.value", watch=True)
+    def sidebar(self):
+        return self.update_sidebar()
 
 
 class TreesPage(View):

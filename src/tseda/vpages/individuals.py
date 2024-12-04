@@ -35,5 +35,6 @@ class IndividualsPage(View):
     def sidebar(self):
         return pn.Column(
             self.geomap.sidebar,
-            self.data.sidebar,
+            self.data.options_sidebar,
+            self.data.modification_sidebar,
         )

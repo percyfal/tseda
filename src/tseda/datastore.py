@@ -1,3 +1,5 @@
+import random
+
 import daiquiri
 import pandas as pd
 import panel as pn
@@ -53,8 +55,7 @@ class IndividualsTable(Viewer):
     ]
     editors = {k: None for k in columns}  # noqa
     editors["sample_set_id"] = {
-        "type": "list",
-        "values": [],
+        "type": "number",
         "valueLookup": True,
     }
     editors["selected"] = {
@@ -68,34 +69,54 @@ class IndividualsTable(Viewer):
 
     page_size = param.Selector(
         objects=[10, 20, 50, 100, 200, 500],
-        default=100,
+        default=20,
         doc="Number of rows per page to display",
     )
-    toggle = param.Integer(
-        default=None, bounds=(0, None), doc="Toggle sample set by index"
+    sample_select = pn.widgets.MultiChoice(
+        name="Select sample sets",
+        description="Select samples based on the sample set ID.",
+        options=[],
     )
     population_from = param.Integer(
+        label="Population ID",
         default=None,
         bounds=(0, None),
-        doc=(
-            "Batch reassign individual from this `population` "
-            "to the index given in the `sample_set_to` parameter"
-        ),
+        doc=("Reassign individuals with this population ID."),
     )
     sample_set_to = param.Integer(
+        label="New sample set ID",
         default=None,
         bounds=(0, None),
-        doc=(
-            "Batch reassign individuals in the index given in "
-            "the `sample_set_from` parameter to this sample set. "
-            "Update will only take place when both fields are set."
-        ),
+        doc=("Reassign individuals to this sample set ID."),
     )
+    mod_update_button = pn.widgets.Button(name="Update")
+
+    filters = {
+        "name": {"type": "input", "func": "like", "placeholder": "Enter name"},
+        "population": {
+            "type": "input",
+            "func": "like",
+            "placeholder": "Enter ID",
+        },
+        "sample_set_id": {
+            "type": "input",
+            "func": "like",
+            "placeholder": "Enter ID",
+        },
+        "selected": {
+            "type": "tickCross",
+            "tristate": True,
+            "indeterminateValue": None,
+            "placeholder": "Enter True/False",
+        },
+    }
 
     def __init__(self, **params):
         super().__init__(**params)
         self.table.set_index(["id"], inplace=True)
         self.data = self.param.table.rx()
+        self.sample_select.options = self.sample_set_indices()
+        self.sample_select.value = self.sample_set_indices()
 
     @property
     def tooltip(self):
@@ -114,6 +135,10 @@ class IndividualsTable(Viewer):
                 "displayed in the GeoMap plots."
             ),
         )
+
+    def sample_set_indices(self):
+        """Return indices of sample groups."""
+        return sorted(self.data.rx.value["sample_set_id"].unique().tolist())
 
     def sample_sets(self):
         sample_sets = {}
@@ -156,13 +181,18 @@ class IndividualsTable(Viewer):
         """Return individual by index"""
         return self.data.rx.value.loc[i]
 
-    @pn.depends("page_size", "toggle", "sample_set_to")
+    @pn.depends("page_size", "sample_select.value", "mod_update_button.value")
     def __panel__(self):
-        if self.toggle is not None:
-            self.data.rx.value.loc[
-                self.toggle == self.data.rx.value.sample_set_id, "selected"
-            ] = not self.data.rx.value.loc[self.toggle, "selected"]
-            self.toggle = None
+        self.data.rx.value["selected"] = False
+        if (
+            isinstance(self.sample_select.value, list)
+            and self.sample_select.value
+        ):
+            for sample_set_id in self.sample_select.value:
+                self.data.rx.value.loc[
+                    self.data.rx.value.sample_set_id == sample_set_id,
+                    "selected",
+                ] = True
         if self.sample_set_to is not None:
             if self.population_from is not None:
                 try:
@@ -175,6 +205,7 @@ class IndividualsTable(Viewer):
             else:
                 logger.info("No population defined")
         data = self.data[self.columns]
+
         table = pn.widgets.Tabulator(
             data,
             pagination="remote",
@@ -184,18 +215,33 @@ class IndividualsTable(Viewer):
             formatters=self.formatters,
             editors=self.editors,
             margin=10,
-            text_align={"selected": "center"},
+            text_align={col: "right" for col in self.columns},
+            header_filters=self.filters,
         )
         return pn.Column(self.tooltip, table)
 
-    def sidebar(self):
+    def options_sidebar(self):
         return pn.Card(
             self.param.page_size,
-            self.param.toggle,
-            self.param.population_from,
-            self.param.sample_set_to,
+            self.sample_select,
             collapsed=False,
             title="Individuals table options",
+            header_background=config.SIDEBAR_BACKGROUND,
+            active_header_background=config.SIDEBAR_BACKGROUND,
+            styles=config.VCARD_STYLE,
+        )
+
+    modification_header = pn.pane.Markdown("#### Batch reassign indivuduals:")
+
+    def modification_sidebar(self):
+        return pn.Card(
+            pn.Column(
+                self.modification_header,
+                pn.Row(self.param.population_from, self.param.sample_set_to),
+                self.mod_update_button,
+            ),
+            collapsed=False,
+            title="Data modification",
             header_background=config.SIDEBAR_BACKGROUND,
             active_header_background=config.SIDEBAR_BACKGROUND,
             styles=config.VCARD_STYLE,
@@ -222,6 +268,12 @@ class SampleSetsTable(Viewer):
         label="New sample set name",
     )
 
+    warning_pane = pn.pane.Alert(
+        "This sample set name already exists, pick a unique name.",
+        alert_type="warning",
+        visible=False,
+    )
+
     page_size = param.Selector(objects=[10, 20, 50, 100], default=20)
 
     table = param.DataFrame()
@@ -244,18 +296,37 @@ class SampleSetsTable(Viewer):
     @pn.depends("page_size", "create_sample_set_textinput")  # , "columns")
     def __panel__(self):
         if self.create_sample_set_textinput is not None:
-            i = max(self.param.table.rx.value.index) + 1
-            self.param.table.rx.value.loc[i] = [
-                self.create_sample_set_textinput,
-                config.COLORS[0],
-                False,
+            previous_names = [
+                self.table.name[i] for i in range(len(self.table))
             ]
-            self.create_sample_set_textinput = None
+            if self.create_sample_set_textinput in previous_names:
+                self.warning_pane.visible = True
+            else:
+                previous_colors = [
+                    self.table.color[i] for i in range(len(self.table))
+                ]
+                unused_colors = [
+                    color
+                    for color in config.COLORS
+                    if color not in previous_colors
+                ]
+                if len(unused_colors) != 0:
+                    colors = unused_colors
+                else:
+                    colors = config.COLORS
+                self.warning_pane.visible = False
+                i = max(self.param.table.rx.value.index) + 1
+                self.param.table.rx.value.loc[i] = [
+                    self.create_sample_set_textinput,
+                    colors[random.randint(0, len(colors) - 1)],
+                    False,
+                ]
+                self.create_sample_set_textinput = None
         table = pn.widgets.Tabulator(
             self.data,
             layout="fit_data_table",
             selectable=True,
-            page_size=100,
+            page_size=self.page_size,
             pagination="remote",
             margin=10,
             formatters=self.formatters,
@@ -268,7 +339,7 @@ class SampleSetsTable(Viewer):
             self.data,
             layout="fit_data_table",
             selectable=True,
-            page_size=100,
+            page_size=10,
             pagination="remote",
             margin=10,
             formatters=self.formatters,
@@ -285,14 +356,17 @@ class SampleSetsTable(Viewer):
         )
 
     def sidebar(self):
-        return pn.Card(
-            self.param.page_size,
-            self.param.create_sample_set_textinput,
-            title="Sample sets table options",
-            collapsed=False,
-            header_background=config.SIDEBAR_BACKGROUND,
-            active_header_background=config.SIDEBAR_BACKGROUND,
-            styles=config.VCARD_STYLE,
+        return pn.Column(
+            pn.Card(
+                self.param.page_size,
+                self.param.create_sample_set_textinput,
+                title="Sample sets table options",
+                collapsed=False,
+                header_background=config.SIDEBAR_BACKGROUND,
+                active_header_background=config.SIDEBAR_BACKGROUND,
+                styles=config.VCARD_STYLE,
+            ),
+            self.warning_pane,
         )
 
     @property
