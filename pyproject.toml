@@ -7,7 +7,7 @@ authors = [
 dependencies = [
     "panel~=1.5.3",
     "tskit~=0.6.0",
-    "tszip~=0.2.5",
+    "tszip==0.2.4",
     "click~=8.2.1",
     "daiquiri~=3.2.5.1",
     "holoviews~=1.19.1",
@@ -21,6 +21,7 @@ dependencies = [
     "hvplot~=0.11.1",
     "xyzservices~=2024.6.0",
     "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@2faab76ad3a1f4bb51e6a39ce1c244dc1ac8209b",
+    "zarr<3",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

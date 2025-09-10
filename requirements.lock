@@ -243,7 +243,7 @@ tskit==0.6.0
     # via tsbrowse
     # via tseda
     # via tszip
-tszip==0.2.5
+tszip==0.2.4
     # via tsbrowse
     # via tseda
 typing-extensions==4.12.2
@@ -263,4 +263,5 @@ xyzservices==2024.6.0
     # via geoviews
     # via tseda
 zarr==2.18.2
+    # via tseda
     # via tszip
