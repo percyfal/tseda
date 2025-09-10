@@ -59,7 +59,7 @@ cffi==1.17.0
     # via argon2-cffi-bindings
 charset-normalizer==3.3.2
     # via requests
-click==8.1.7
+click==8.2.1
     # via dask
     # via tsbrowse
     # via tseda
