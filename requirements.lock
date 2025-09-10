@@ -82,6 +82,8 @@ hvplot==0.11.1
     # via tseda
 idna==3.7
     # via requests
+importlib-metadata==8.7.0
+    # via dask
 jinja2==3.1.4
     # via bokeh
 jsonschema==4.23.0
@@ -265,3 +267,5 @@ xyzservices==2024.6.0
 zarr==2.18.2
     # via tseda
     # via tszip
+zipp==3.23.0
+    # via importlib-metadata

@@ -24,7 +24,7 @@ dependencies = [
     "zarr<3",
 ]
 readme = "README.md"
-requires-python = ">= 3.12"
+requires-python = ">= 3.11"
 dynamic = ["version"]
 
 [build-system]
@@ -83,7 +83,7 @@ known-first-party = ["tseda"]
 venvPath = "."
 venv = ".venv"
 include = ["src"]
-pythonVersion = "3.12"  # _lowest_ supported version
+pythonVersion = "3.11"  # _lowest_ supported version
 reportMissingTypeStubs = false
 reportAttributeAccessIssue = false
 reportCallIssue = false
