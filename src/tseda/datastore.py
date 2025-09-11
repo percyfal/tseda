@@ -890,7 +890,6 @@ class DataStore(Viewer):
             pandas.DataFrame: A DataFrame containing GNN information for each
             haplotype.
         """
-        print("ksbhflbsdfj", type(focal_ind), type(windows))
         sample_sets = self.individuals_table.sample_sets()
         ind = self.individuals_table.loc(focal_ind)
         hap = windowed_genealogical_nearest_neighbours(
