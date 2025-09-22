@@ -71,7 +71,7 @@ class GNNHaplotype(View):
     )
 
     warning_pane = pn.pane.Alert(
-        """Please select at least 1 sample to visualize these graphs. 
+        """Please select at least 1 sample to visualize these graphs.
         Sample selection is done on the Individuals page.""",
         alert_type="warning",
         visible=False,
@@ -324,7 +324,7 @@ class VBar(View):
     )
 
     warning_pane = pn.pane.Alert(
-        """Please select at least 1 sample to visualize this graph. 
+        """Please select at least 1 sample to visualize this graph.
         Sample selection is done on the Individuals page.""",
         alert_type="warning",
     )

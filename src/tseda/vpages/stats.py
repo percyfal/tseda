@@ -72,7 +72,7 @@ class OnewayStats(View):
     mode = param.Selector(
         objects=["site"],
         default="site",
-        doc="""Select mode (site or branch) for statistics. 
+        doc="""Select mode (site or branch) for statistics.
         Branch mode is only available for calibrated data.""",
     )
     statistic = param.Selector(
@@ -228,7 +228,7 @@ class MultiwayStats(View):
     mode = param.Selector(
         objects=["site"],
         default="site",
-        doc="""Select mode (site or branch) for statistics. 
+        doc="""Select mode (site or branch) for statistics.
         Branch mode is only available for calibrated data.""",
     )
     statistic = param.Selector(
