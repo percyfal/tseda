@@ -17,16 +17,20 @@ to produce the output `data.trees.tseda`. To launch the web app run
 
 `python -m tseda serve data.trees.tseda`
 
+<!-- markdownlint-disable MD033 -->
+
 | <img src="./static/gnnpage.png" width="50%" alt="Screenshot of the GNN tab"> |
 |:--:|
 | Screenshot of the prototype GNN viewer |
+
+<!-- markdownlint-enable MD033 -->
 
 ## Installation
 
 tseda is currently in development. To install the latest dev version
 from github, run
 
-```
+```{bash}
 python -m pip install git+https://github.com/tforest/tseda
 ```
 

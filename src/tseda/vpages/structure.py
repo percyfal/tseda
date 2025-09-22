@@ -37,7 +37,7 @@ class GNN(View):
     """
 
     warning_pane = pn.pane.Alert(
-        """Please select at least 2 samples to visualize this graph. 
+        """Please select at least 2 samples to visualize this graph.
         Sample selection is done on the Individuals page.""",
         alert_type="warning",
     )
@@ -104,7 +104,7 @@ class Fst(View):
     """
 
     warning_pane = pn.pane.Alert(
-        """Please select at least 2 samples to visualize this graph. 
+        """Please select at least 2 samples to visualize this graph.
         Sample selection is done on the Individuals page.""",
         alert_type="warning",
     )

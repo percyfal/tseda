@@ -110,18 +110,18 @@ class Tree(View):
 
     tree_index = param.Integer(
         default=0,
-        doc="""Get tree by zero-based index. If multiple trees are 
+        doc="""Get tree by zero-based index. If multiple trees are
         shown, this is the index of the first tree.""",
     )
     position = param.Integer(
         default=None,
-        doc="""Get tree at genome position (bp). If multiple trees are 
+        doc="""Get tree at genome position (bp). If multiple trees are
         shown, this is the position of the first tree.""",
     )
 
     position_index_warning = pn.pane.Alert(
-        """The input for position or tree index is 
-        out of bounds for the specified number 
+        """The input for position or tree index is
+        out of bounds for the specified number
         of trees.""",
         alert_type="warning",
         visible=False,
@@ -134,7 +134,7 @@ class Tree(View):
         name="Number of trees",
         options=[1, 2, 3, 4, 5, 6],
         value=1,
-        description="""Select the number of trees to display. The first tree 
+        description="""Select the number of trees to display. The first tree
         will represent your selected chromosome position or tree index.""",
     )
 
@@ -150,10 +150,10 @@ class Tree(View):
     options_doc = pn.widgets.TooltipIcon(
         value=(
             """Select various elements to include in your graph.
-            Pack unselected sample sets: Selecting this option 
-            will allow large polytomies involving unselected 
-            samples to be summarised as a dotted line. Selection 
-            of samples and sample sets can be done on the 
+            Pack unselected sample sets: Selecting this option
+            will allow large polytomies involving unselected
+            samples to be summarised as a dotted line. Selection
+            of samples and sample sets can be done on the
             Individuals page."""
         ),
     )
@@ -413,7 +413,7 @@ class Tree(View):
         sidebar_content = pn.Column(
             pn.Card(
                 pn.pane.HTML(
-                    f"""<b>See the <a 
+                    f"""<b>See the <a
                     href={doc_link}>
                     tskit documentation</a> for more information
                     about these plotting options.<b>"""
@@ -508,7 +508,7 @@ class Tree(View):
         return pn.Column(
             all_trees,
             pn.pane.Markdown(
-                """**Tree plot** - Lorem Ipsum... 
+                """**Tree plot** - Lorem Ipsum...
             Selected samples are marked with a black outline."""
             ),
             self.slider,
