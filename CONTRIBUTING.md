@@ -15,55 +15,54 @@ Here is a list of important resources for contributors:
 
 ## Development environment
 
-Project and package management is done using [rye]. For a good
-introduction to rye, see the [postmodern python] blog post.
+Project and package management is done using [uv]. For a good
+introduction to rye, the predecessor of uv, see the [postmodern
+python] blog post. This post explains the motivation to move to a more
+modern Python package manager.
 
-Use rye to add and remove dependencies from `pyproject.toml`.
+Use uv to add and remove dependencies from `pyproject.toml`.
 Development packages are added by applying the `--dev` flag:
 
-    rye add package
-    rye add dev-package --dev
-    rye remove package
-    rye remove dev-package --dev
+    uv add package
+    uv add dev-package --dev
+    uv remove package
+    uv remove dev-package --dev
 
-After modifying dependencies, make sure to run `rye sync` to update
+After modifying dependencies, make sure to run `uv sync` to update
 the virtual environment.
 
-[rye]: https://rye.astral.sh/
+[uv]: https://docs.astral.sh/uv/
 [postmodern python]: https://rdrn.me/postmodern-python/
 
 ## Virtual environment
 
-rye sets up a virtual environment in `.venv`. You should be able to
+uv sets up a virtual environment in `.venv`. You should be able to
 activate the environment with `source .venv/bin/activate`. However, if
 you have `pyenv` installed you may run into the issue that nothing
 seems to load. This is a known issue (see [pyenv issue]). You can
-always run programs in the virtual environment with `rye run`, e.g.,
+always run programs in the virtual environment with `uv run`, e.g.,
 
-    rye run pytest -v -s
+    uv run pytest -v -s
 
-[pyenv issue]: https://github.com/astral-sh/rye/issues/317
+[pyenv issue]: https://github.com/astral-sh/uv/issues/317
 
-## Linting and testing workflow
+## Linting
 
-rye provides support for Python code formatting, linting, and more.
-The steps can be run separately
+Currently uv lacks support for tool chains. The easiest way to run
+linting on the codebase is to use [pixi] and run pre-defined tasks.
 
-    rye fmt
-    rye lint --fix
-    rye run check
-    rye test
+The basic task to run the linting toolchain is
 
-Alternatively, you can run the entire toolchain with
+    pixi run lint
 
-    rye run all
+[pixi]: https://pixi.sh/latest/
 
 ## Development with small test data set
 
 Development is facilitated by loading the small data set that is
 provided and reloading upon code changes:
 
-    rye run python -m tseda tests/data/test.trees
+    uv run python -m tseda tests/data/test.trees
 
 The test data is a modified simulation of the [out of Africa]
 demographic model (stdpopsim model `OutOfAfrica_3G09`), amended with
@@ -76,10 +75,10 @@ reflect typical metadata.
 
 The `--admin` option will activate the `/admin` panel:
 
-    rye run python -m tseda tests/data/test.trees --admin
+    uv run python -m tseda tests/data/test.trees --admin
 
 If the project is served locally on port 5006, the `/admin` endpoint
-would be available at `http://localhost:5006/admin. See [admin] for
+would be available at <http://localhost:5006/admin>. See [admin] for
 more information.
 
 [admin]: https://panel.holoviz.org/how_to/profiling/admin.html
@@ -89,7 +88,7 @@ more information.
 For interactive development, you can serve the app in development mode
 with `panel serve`:
 
-    rye run panel serve src/tseda --dev --show --args tests/data/test.trees
+    uv run panel serve src/tseda --dev --show --args tests/data/test.trees
 
 ## Adding a new application page
 
@@ -100,6 +99,8 @@ Assuming your new page is called `MyAnalysis`, start by adding a file
 named file `myanalysis.py` to `vpages`. At the very minimum, the file
 should contain a class called `MyAnalysisPage` with the following
 template:
+
+<!-- markdownlint-disable MD046 -->
 
 ```python
 import panel as pn
@@ -114,6 +115,8 @@ class MyAnalysisPage(View):
     def __panel__(self):
         return pn.Column()
 ```
+
+<!-- markdownlint-enable MD046 -->
 
 In `vpages.__init__.py` add `myanalysis` to the first `import`
 statement, and append `myanalysis.MyAnalysisPage` to the `PAGES` list.
@@ -130,6 +133,8 @@ conversion of data requires some additional imports. The class defines
 a `param` object for window size, which will show up as an input box
 widget in the `sidebar()` function. The `__panel__()` function sets up
 the actual plot.
+
+<!-- markdownlint-disable MD046 -->
 
 ```python
 import numpy as np
@@ -163,7 +168,11 @@ class NucDivPlot(View):
         )
 ```
 
+<!-- markdownlint-enable MD046 -->
+
 Then we modify the `MyAnalysisPage` class as follows:
+
+<!-- markdownlint-disable MD046 -->
 
 ```python
 class MyAnalysisPage(View):
@@ -181,6 +190,8 @@ class MyAnalysisPage(View):
     def sidebar(self):
         return pn.Column(self.nucdiv.sidebar)
 ```
+
+<!-- markdownlint-enable MD046 -->
 
 Reload the app and hopefully you will see an added plot and sidebar.
 

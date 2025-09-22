@@ -1,11 +1,11 @@
 import os
-import panel as pn
 
+import panel as pn
 import tskit
 from pytest import fixture
 from tsbrowse import model as tsb_model
 
-from tseda import model, datastore
+from tseda import datastore
 
 dirname = os.path.abspath(os.path.dirname(__file__))
 

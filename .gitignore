@@ -1,3 +1,5 @@
 *.pyc
 data
-src/tseda/_version.py
+src/tseda/_version.py# pixi environments
+.pixi/*
+!.pixi/config.toml
