@@ -5,21 +5,21 @@ authors = [
     { name = "Per Unneberg", email = "per.unneberg@scilifelab.se" }
 ]
 dependencies = [
-    "panel~=1.5.3",
-    "tskit~=0.6.0",
-    "tszip~=0.2.5",
-    "click~=8.1.7",
-    "daiquiri~=3.2.5.1",
-    "holoviews~=1.19.1",
-    "numba~=0.60.0",
-    "diskcache~=5.6.3",
-    "appdirs~=1.4.4",
-    "geoviews~=1.13.0",
-    "cartopy~=0.23.0",
-    "geopandas~=1.0.1",
-    "dask[dataframe]~=2024.8.1",
-    "hvplot~=0.11.1",
-    "xyzservices~=2024.6.0",
+    "panel==1.5.3",
+    "tskit==0.6.0",
+    "tszip==0.2.5",
+    "click==8.1.7",
+    "daiquiri==3.2.5.1",
+    "holoviews==1.19.1",
+    "numba==0.60.0",
+    "diskcache==5.6.3",
+    "appdirs==1.4.4",
+    "geoviews==1.13.0",
+    "cartopy==0.23.0",
+    "geopandas==1.0.1",
+    "dask[dataframe]==2024.8.1",
+    "hvplot==0.11.1",
+    "xyzservices==2024.6.0",
     "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@2faab76ad3a1f4bb51e6a39ce1c244dc1ac8209b",
 ]
 readme = "README.md"
@@ -45,15 +45,15 @@ packages = ["src/tseda"]
 [tool.rye]
 managed = true
 dev-dependencies = [
-    "jupyter~=1.0.0",
-    "pyright~=1.1.388",
-    "pytest~=8.3.2",
-    "stdpopsim~=0.2.0",
-    "geodatasets~=2024.7.0",
-    "pip~=24.2",
-    "hatch-vcs~=0.4.0",
-    "watchfiles~=0.24.0",
-    "pytest-playwright~=0.5.2",
+    "jupyter==1.0.0",
+    "pyright==1.1.388",
+    "pytest==8.3.2",
+    "stdpopsim==0.2.0",
+    "geodatasets==2024.7.0",
+    "pip==24.2",
+    "hatch-vcs==0.4.0",
+    "watchfiles==0.24.0",
+    "pytest-playwright==0.5.2",
 ]
 
 [project.scripts]
