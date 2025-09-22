@@ -1,30 +1,43 @@
 [project]
 name = "tseda"
 description = "Tree sequence exploratory data analysis"
-authors = [
-    { name = "Per Unneberg", email = "per.unneberg@scilifelab.se" }
-]
+authors = [{ name = "Per Unneberg", email = "per.unneberg@scilifelab.se" }]
 dependencies = [
-    "panel==1.5.3",
-    "tskit==0.6.0",
-    "tszip==0.2.5",
-    "click==8.1.7",
-    "daiquiri==3.2.5.1",
-    "holoviews==1.19.1",
-    "numba==0.60.0",
-    "diskcache==5.6.3",
-    "appdirs==1.4.4",
-    "geoviews==1.13.0",
-    "cartopy==0.23.0",
-    "geopandas==1.0.1",
-    "dask[dataframe]==2024.8.1",
-    "hvplot==0.11.1",
-    "xyzservices==2024.6.0",
-    "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@2faab76ad3a1f4bb51e6a39ce1c244dc1ac8209b",
+  "panel==1.5.3",
+  "tskit==0.6.0",
+  "tszip==0.2.4",
+  "click==8.2.1",
+  "daiquiri==3.2.5.1",
+  "holoviews==1.19.1",
+  "numba==0.61.2",
+  "diskcache==5.6.3",
+  "appdirs==1.4.4",
+  "geoviews==1.13.0",
+  "cartopy==0.23.0",
+  "geopandas==1.0.1",
+  "dask[dataframe]==2024.8.1",
+  "hvplot==0.11.1",
+  "xyzservices==2024.6.0",
+  "tsbrowse @ git+https://github.com/tskit-dev/tsbrowse@2faab76ad3a1f4bb51e6a39ce1c244dc1ac8209b",
+  "numcodecs<0.16",
+  "tornado==6.4.1",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
 dynamic = ["version"]
+
+[dependency-groups]
+dev = [
+  "geodatasets>=2024.8.0",
+  "hatch-vcs>=0.5.0",
+  "jupyter>=1.0.0",
+  "pip>=25.2",
+  "pyright>=1.1.405",
+  "pytest>=8.4.2",
+  "pytest-playwright>=0.7.1",
+  "stdpopsim>=0.3.0",
+  "watchfiles>=1.1.0",
+]
 
 [build-system]
 requires = ["hatchling", "hatch-vcs"]
@@ -41,20 +54,6 @@ version-file = "src/tseda/_version.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/tseda"]
-
-[tool.uv]
-managed = true
-dev-dependencies = [
-    "jupyter==1.0.0",
-    "pyright==1.1.388",
-    "pytest==8.3.2",
-    "stdpopsim==0.2.0",
-    "geodatasets==2024.7.0",
-    "pip==24.2",
-    "hatch-vcs==0.4.0",
-    "watchfiles==0.24.0",
-    "pytest-playwright==0.5.2",
-]
 
 [project.scripts]
 "tseda" = "tseda:main"
@@ -82,7 +81,7 @@ known-first-party = ["tseda"]
 venvPath = "."
 venv = ".venv"
 include = ["src"]
-pythonVersion = "3.12"  # _lowest_ supported version
+pythonVersion = "3.12"             # _lowest_ supported version
 reportMissingTypeStubs = false
 reportAttributeAccessIssue = false
 reportCallIssue = false
@@ -90,12 +89,44 @@ reportOptionalMemberAccess = false
 reportAssignmentType = false
 reportArgumentType = false
 
-[tool.uv.scripts]
-fmt = "rye fmt"
-lint = "rye lint src --fix"
-check = "pyright"
-test = "rye test"
-all = { chain = ["fmt", "lint", "check", "test"] }
-
 [tool.pytest.ini_options]
 addopts = "--doctest-modules --ignore src/tseda/main.py"
+
+[tool.pixi.workspace]
+channels = ["conda-forge", "bioconda"]
+platforms = ["linux-64"]
+
+[tool.pixi.pypi-dependencies]
+tseda = { path = ".", editable = true }
+
+[tool.pixi.environments]
+default = { solve-group = "default" }
+dev = { features = ["dev"], solve-group = "default" }
+lint = { features = ["lint"], solve-group = "default" }
+
+[tool.pixi.feature.lint.dependencies]
+pre-commit = ">=4.2.0,<5"
+pre-commit-hooks = ">=5.0.0,<6"
+shellcheck = ">=0.10.0,<0.11"
+ruff = ">=0.11.11,<0.12"
+typos = ">=1.32.0,<2"
+actionlint = ">=1.7.7,<2"
+go-shfmt = ">=3.11.0,<4"
+prettier = ">=3.5.3,<4"
+taplo = ">=0.9.3,<0.10"
+
+[tool.pixi.feature.lint.tasks]
+actionlint = { cmd = "actionlint", env = { SHELLCHECK_OPTS = "-e SC2086" } }
+lintall = { cmd = "pre-commit run --all-files --hook-stage=manual", description = "Run all linters and formatters on all code" }
+lint = { cmd = "pre-commit run --hook-stage=manual", description = "Run all linters and formatters on staged code" }
+pre-commit-install = "pre-commit install --install-hooks -t=pre-commit -t=pre-push"
+pre-commit-install-minimal = "pre-commit install -t=pre-commit"
+pre-commit-run = "pre-commit run --all-files"
+prettier-fmt = { cmd = "prettier --write" }
+ruff-format = "ruff format --force-exclude"
+ruff-lint = "ruff check --fix --exit-non-zero-on-fix --force-exclude"
+shell-format = "shfmt --write --indent=4 --simplify --binary-next-line"
+toml-format = { cmd = "taplo fmt", env = { RUST_LOG = "warn" } }
+toml-lint = "taplo lint --verbose **/pixi.toml"
+typecheck-python = "mypy"
+typos = "typos --write-changes --force-exclude"

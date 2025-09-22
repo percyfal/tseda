@@ -1,6 +1,5 @@
 import pytest
 
-from tseda import datastore
 from tseda.vpages import ignn
 
 

@@ -1,10 +1,9 @@
 import time
 
 import panel as pn
-from tseda import app
-from tseda import datastore
-from tseda.vpages import PAGES
 from playwright.sync_api import expect
+
+from tseda import app, datastore
 
 CLICKS = 2
 
@@ -17,7 +16,7 @@ def test_component(page, port, ds):
         views=[datastore.IndividualsTable],
     )
 
-    server = pn.serve(component.view, port=port, threaded=True, show=False)
+    _ = pn.serve(component.view, port=port, threaded=True, show=False)
     time.sleep(20)
     page.goto(url)
 
