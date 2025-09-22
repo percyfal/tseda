@@ -38,6 +38,9 @@ jobs:
       - name: Install project
         run: uv sync --locked --all-extras --dev
 
+      - name: Install playwright
+        run: uv run python -m playwright install --with-deps
+
       - name: Run tests
         run: uv run pytest -v -s
 
