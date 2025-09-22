@@ -81,8 +81,8 @@ class GeoMap(View):
             df.drop(["longitude", "latitude"], axis=1),
             geometry=geopandas.points_from_xy(df.longitude, df.latitude),
         )
-        color = color.loc[~gdf.geometry.is_empty.values]
-        gdf = gdf[~gdf.geometry.is_empty]
+        gdf["color"] = color.loc[~gdf.geometry.is_empty.values]
+        gdf = gdf[gdf.geometry.is_valid]
 
         kw = {
             "geo": True,
@@ -113,7 +113,7 @@ class GeoMap(View):
             **kw,
             hover_cols=["name", "population", "sample_set_id"],
             size=100,
-            color=color,
+            color="color",
             fill_alpha=0.5,
             line_color="black",
         )
