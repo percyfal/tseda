@@ -42,7 +42,7 @@ version-file = "src/tseda/_version.py"
 [tool.hatch.build.targets.wheel]
 packages = ["src/tseda"]
 
-[tool.rye]
+[tool.uv]
 managed = true
 dev-dependencies = [
     "jupyter==1.0.0",
@@ -90,7 +90,7 @@ reportOptionalMemberAccess = false
 reportAssignmentType = false
 reportArgumentType = false
 
-[tool.rye.scripts]
+[tool.uv.scripts]
 fmt = "rye fmt"
 lint = "rye lint src --fix"
 check = "pyright"
