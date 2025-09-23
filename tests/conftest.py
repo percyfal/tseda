@@ -3,9 +3,8 @@ import os
 import panel as pn
 import tskit
 from pytest import fixture
-from tseda import model
 
-from tseda import datastore
+from tseda import datastore, model
 
 dirname = os.path.abspath(os.path.dirname(__file__))
 

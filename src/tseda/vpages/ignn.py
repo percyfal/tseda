@@ -537,13 +537,13 @@ class IGNNPage(View):
         return pn.Column(
             pn.Accordion(
                 pn.Column(
-                    self.geomap,
+                    pn.Column(self.geomap, sizing_mode="scale_both"),
                     pn.pane.Markdown(
                         "**Map** - Displays the geographical locations "
                         "where samples were collected and visually "
                         "represents their group sample affiliations "
                         "through colors.",
-                        sizing_mode="stretch_width",
+                        sizing_mode="stretch_both",
                     ),
                     name="Geomap",
                     min_width=400,
@@ -558,9 +558,15 @@ class IGNNPage(View):
                     ),
                     name="VBar Plot",
                 ),
-                pn.Column(self.gnnhaplotype, name="GNN Haplotype Plot"),
+                pn.Column(
+                    self.gnnhaplotype,
+                    name="GNN Haplotype Plot",
+                    sizing_mode="stretch_height",
+                    min_height=600,
+                ),
                 active=[0, 1, 2],
             ),
+            pn.Spacer(sizing_mode="stretch_both", max_height=5),
         )
 
     def sidebar(self) -> pn.Column:
