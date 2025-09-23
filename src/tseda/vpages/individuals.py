@@ -102,15 +102,15 @@ class IndividualsPage(View):
             pn.Row(
                 pn.Accordion(
                     pn.Column(
-                        self.geomap,
+                        pn.Column(self.geomap, sizing_mode="scale_both"),
                         pn.pane.Markdown(
                             "**Map** - Displays the geographical locations "
                             "where samples were collected and visually "
                             "represents their group sample affiliations "
                             "through colors.",
-                            sizing_mode="stretch_width",
+                            sizing_mode="stretch_both",
                         ),
-                        min_width=400,
+                        min_width=300,
                         min_height=600,
                         sizing_mode="stretch_both",
                         name="Geomap",
@@ -125,7 +125,9 @@ class IndividualsPage(View):
                 pn.Column(self.individuals_table, name="Individuals Table"),
                 active=[0],
                 sizing_mode="stretch_height",
+                min_height=1200,
             ),
+            pn.Spacer(sizing_mode="stretch_both", max_height=5),
         )
         return p
 
