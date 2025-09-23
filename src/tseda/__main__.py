@@ -10,9 +10,9 @@ from . import app  # noqa
 from . import config  # noqa
 from . import model  # noqa
 from . import datastore  # noqa
+from . import preprocess as preprocess_  # noqa
 from .datastore import IndividualsTable  # noqa
-from tsbrowse import preprocess as preprocess_  # noqa
-from tsbrowse.model import TSModel  # noqa
+from .model import TSModel  # noqa
 
 
 logger = daiquiri.getLogger("tseda")

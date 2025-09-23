@@ -98,7 +98,7 @@ class IndividualsPage(View):
         sample_sets_accordion.param.watch(
             sample_sets_accordion_toggled, "active"
         )
-        return pn.Column(
+        p = pn.Column(
             pn.Row(
                 pn.Accordion(
                     pn.Column(
@@ -114,6 +114,7 @@ class IndividualsPage(View):
                         name="Geomap",
                     ),
                     active=[0],
+                    sizing_mode="stretch_height",
                 ),
                 pn.Spacer(sizing_mode="stretch_width", max_width=5),
                 sample_sets_accordion,
@@ -121,8 +122,10 @@ class IndividualsPage(View):
             pn.Accordion(
                 pn.Column(self.individuals_table, name="Individuals Table"),
                 active=[0],
+                sizing_mode="stretch_height",
             ),
         )
+        return p
 
     def sidebar(self) -> pn.Column:
         """Defines the content for the sidebar of the view containing
