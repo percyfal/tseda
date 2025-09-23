@@ -3,7 +3,7 @@ import os
 import panel as pn
 import tskit
 from pytest import fixture
-from tsbrowse import model as tsb_model
+from tseda import model
 
 from tseda import datastore
 
@@ -55,8 +55,8 @@ def ts(treesfile):
 
 
 @fixture
-def tsm(tsbrowsefile):
-    return tsb_model.TSModel(tsbrowsefile)
+def tsm(tsedafile):
+    return model.TSModel(tsedafile)
 
 
 @fixture
