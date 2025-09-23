@@ -16,7 +16,7 @@ information.
 
 from tseda import app  # noqa
 from tseda import datastore  # noqa
-from tsbrowse.model import TSModel  # noqa
+from tseda.model import TSModel  # noqa
 import daiquiri
 import sys
 

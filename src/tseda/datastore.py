@@ -36,9 +36,8 @@ import pandas as pd
 import panel as pn
 import param
 from panel.viewable import Viewer
-from tsbrowse import model
 
-from tseda import config
+from tseda import config, model
 from tseda.model import Individual, SampleSet
 
 from .gnn import windowed_genealogical_nearest_neighbours
@@ -890,7 +889,6 @@ class DataStore(Viewer):
             pandas.DataFrame: A DataFrame containing GNN information for each
             haplotype.
         """
-        print("ksbhflbsdfj", type(focal_ind), type(windows))
         sample_sets = self.individuals_table.sample_sets()
         ind = self.individuals_table.loc(focal_ind)
         hap = windowed_genealogical_nearest_neighbours(

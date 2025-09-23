@@ -117,7 +117,7 @@ class DataStoreApp(Viewer):
         @pn.depends(header_selector.param.value)
         def get_content(selected_page):
             yield self.spinner
-            yield self.pages[selected_page].servable
+            yield self.pages[selected_page]
 
         @pn.depends(header_selector.param.value)
         def get_sidebar(selected_page):
