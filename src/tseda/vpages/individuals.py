@@ -111,6 +111,8 @@ class IndividualsPage(View):
                             sizing_mode="stretch_width",
                         ),
                         min_width=400,
+                        min_height=600,
+                        sizing_mode="stretch_both",
                         name="Geomap",
                     ),
                     active=[0],

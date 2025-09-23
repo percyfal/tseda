@@ -546,6 +546,9 @@ class IGNNPage(View):
                         sizing_mode="stretch_width",
                     ),
                     name="Geomap",
+                    min_width=400,
+                    min_height=600,
+                    sizing_mode="stretch_both",
                 ),
                 pn.Column(
                     self.vbar,
