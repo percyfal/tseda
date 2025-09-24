@@ -103,6 +103,7 @@ tseda = { path = ".", editable = true }
 default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
+jlite = { features = ["jlite"], solve-group = "default" }
 
 [tool.pixi.feature.lint.dependencies]
 pre-commit = ">=4.2.0,<5"
@@ -130,3 +131,15 @@ toml-format = { cmd = "taplo fmt", env = { RUST_LOG = "warn" } }
 toml-lint = "taplo lint --verbose **/pixi.toml"
 typecheck-python = "mypy"
 typos = "typos --write-changes --force-exclude"
+
+[tool.pixi.feature.jlite.dependencies]
+jupyterlab = "*"
+jupyterlab-filesystem-access = "*"
+jupyterlite-core = "*"
+jupyterlite-pyodide-kernel = "*"
+jupytext = ">=1.17.3,<2"
+notebook = "*"
+plotly = "*"
+tskit = "*"
+tszip = "*"
+zarr = "<3"
