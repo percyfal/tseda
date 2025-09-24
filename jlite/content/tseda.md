@@ -236,15 +236,38 @@ ignn.gnnhaplotype
 
 ### Statistics
 
+[Tree sequence
+statistics](https://tskit.dev/tskit/docs/stable/stats.html) come in
+two flavors, one-way that are defined over single sample sets, and
+multi-way that compare two or more sample sets. The one-way statistics
+are accessible via the `oneway` attribute:
+
 ```{code-cell} ipython3
 ---
 :tags: [show-input, show-output]
 ---
 stats = vpages.PAGES[4](datastore=ds)
-stats
+stats.oneway
 ```
 
+For multi-way statistics we need to set which sample sets to compare.
+Here, we can make use of the `sidebar` functionality, or set sample
+set groups, formatted (exactly) as `INDEX1 & INDEX2`:
+
+```{code-cell} ipython3
+---
+:tags: [show-input, show-output]
+---
+stats.multiway.comparisons.value = ['0 & 1', '0 & 2']
+stats.multiway
+```
+
+Here, the indexes correspond to sample set ids.
+
 ### Trees
+
+Finally, we can draw trees accessed by genomic position or index in
+the tree sequence:
 
 ```{code-cell} ipython3
 ---
@@ -253,3 +276,14 @@ stats
 trees = vpages.PAGES[5](datastore=ds)
 trees
 ```
+
+The slider can be used to modify the current position. The trees page
+actually renders the `trees.data` attribute, which is where we can
+also set tree attributes manually. For instance, to increase the
+number of shown trees to three, we can set
+`trees.data.num_trees.value=3`.
+
+## Conclusion
+
+This notebook shows the basic functionality of `tseda` plotting
+widgets.

@@ -143,3 +143,10 @@ plotly = "*"
 tskit = "*"
 tszip = "*"
 zarr = "<3"
+pip = ">=25.2,<26"
+
+[tool.pixi.feature.jlite.tasks]
+install = "pip install -r jlite/requirements.txt "
+libarchive = "pip install libarchive-c"
+jlite-notebooks = "jupytext --to ipynb jlite/content/*.md"
+build-jlite = "mkdir -p _site/jlite && jupyter lite build --config jlite/jupyter_lite_config.json --contents jlite/content --output-dir _site/jlite"
