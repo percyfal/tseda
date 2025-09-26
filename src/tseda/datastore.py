@@ -196,7 +196,7 @@ class SampleSetsTable(Viewer):
 
         Raises:
             TypeError: If the sample set table is not a valid
-            Dataframe (not yet populated)
+                Dataframe (not yet populated)
         """
         if isinstance(self.table, pd.DataFrame):
             return self.table.index.values.tolist()
@@ -209,7 +209,7 @@ class SampleSetsTable(Viewer):
         names as keys.
 
         Returns:
-            Dict: dictionary of
+            Dict: dictionary of colors
         """
         d = {}
         for _, row in self.data.rx.value.iterrows():
