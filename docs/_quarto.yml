@@ -1,0 +1,37 @@
+# -*- yaml -*-
+project:
+  type: website
+  title: tseda documentation
+  output-dir: _site
+  preview:
+    port: 8888
+  # render:
+  #   - index.qmd
+  #   - notebook.qmd
+  #   - reference/index.qmd
+
+format:
+  html:
+    theme: default
+    css:
+      - reference/_styles-quartodoc.css
+
+metadata-files:
+  - reference/_sidebar.yml
+
+quartodoc:
+  package: tseda
+  parser: auto
+
+  # write sidebar and style data
+  sidebar: reference/_sidebar.yml
+  css: reference/_styles-quartodoc.css
+
+  source_dir: ../src/tseda
+  sections:
+    - title: Datastore
+      desc: Datatore functions
+      contents:
+        - datastore.SampleSetsTable
+        - datastore.IndividualsTable
+        - datastore.DataStore
