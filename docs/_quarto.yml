@@ -5,9 +5,9 @@ project:
   output-dir: _site
   preview:
     port: 8888
-  # render:
-  #   - index.qmd
-  #   - notebook.qmd
+  render:
+    - index.qmd
+    - notebook.qmd
   #   - reference/index.qmd
 
 format:
