@@ -103,6 +103,7 @@ tseda = { path = ".", editable = true }
 default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
+quarto = ["quarto"]
 
 [tool.pixi.feature.lint.dependencies]
 pre-commit = ">=4.2.0,<5"
@@ -130,3 +131,16 @@ toml-format = { cmd = "taplo fmt", env = { RUST_LOG = "warn" } }
 toml-lint = "taplo lint --verbose **/pixi.toml"
 typecheck-python = "mypy"
 typos = "typos --write-changes --force-exclude"
+
+[tool.pixi.feature.quarto.dependencies]
+quarto = "*"
+jupyter = ">=1.1.1,<2"
+jupytext = ">=1.17.3,<2"
+quartodoc = ">=0.11.1,<0.12"
+
+[tool.pixi.feature.quarto.tasks.pv]
+args = [{ "arg" = "port", default = "8880" }]
+cmd = "quarto preview docs --port {{port}}"
+
+[tool.pixi.feature.quarto.tasks.rd]
+cmd = "quarto render docs"
