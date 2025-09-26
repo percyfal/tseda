@@ -49,7 +49,7 @@ jobs:
 
       - name: Add kernel
         run: |
-          python -m ipykernel install --user --name tseda --display-name "Python (tseda)"
+          pixi run -e quarto python -m ipykernel install --user --name tseda --display-name "Python (tseda)"
 
       - run: echo "QUARTO_PYTHON=${GITHUB_WORKSPACE}/.pixi/envs/quarto/bin/python" >> $GITHUB_ENV
 
