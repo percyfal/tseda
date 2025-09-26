@@ -71,4 +71,4 @@ jobs:
         run: |
           git config --global user.email "${{ env.GITHUB_EMAIL }}"
           git config --global user.name "${{ env.GITHUB_USERNAME }}"
-          pixi run -e quarto quarto publish gh-pages --no-browser
+          pixi run -e quarto quarto publish gh-pages docs --no-browser
