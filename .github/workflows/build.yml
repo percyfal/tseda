@@ -47,6 +47,10 @@ jobs:
           cache: true
           environments: quarto
 
+      - name: Add kernel
+        run: |
+          python -m ipykernel install --user --name tseda --display-name "Python (tseda)"
+
       - run: echo "QUARTO_PYTHON=${GITHUB_WORKSPACE}/.pixi/envs/quarto/bin/python" >> $GITHUB_ENV
 
       - name: Render project without publishing
