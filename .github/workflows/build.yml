@@ -54,7 +54,7 @@ jobs:
           QUARTO_PRINT_STACK: true
         if: ${{ github.event_name == 'pull_request' }}
         run: |
-          quarto render docs
+          pixi run rd
           echo "QUARTO_OUTPUT=docs/_site" >> $GITHUB_ENV
 
       - name: Publish to GitHub Pages
