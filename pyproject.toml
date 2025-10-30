@@ -103,7 +103,7 @@ tseda = { path = ".", editable = true }
 default = { solve-group = "default" }
 dev = { features = ["dev"], solve-group = "default" }
 lint = { features = ["lint"], solve-group = "default" }
-quarto = ["quarto"]
+quarto = { features = ["quarto"], solve-group = "default" }
 
 [tool.pixi.feature.lint.dependencies]
 pre-commit = ">=4.2.0,<5"
@@ -117,20 +117,20 @@ prettier = ">=3.5.3,<4"
 taplo = ">=0.9.3,<0.10"
 
 [tool.pixi.feature.lint.tasks]
-actionlint = { cmd = "actionlint", env = { SHELLCHECK_OPTS = "-e SC2086" } }
-lintall = { cmd = "pre-commit run --all-files --hook-stage=manual", description = "Run all linters and formatters on all code" }
-lint = { cmd = "pre-commit run --hook-stage=manual", description = "Run all linters and formatters on staged code" }
-pre-commit-install = "pre-commit install --install-hooks -t=pre-commit -t=pre-push"
-pre-commit-install-minimal = "pre-commit install -t=pre-commit"
-pre-commit-run = "pre-commit run --all-files"
-prettier-fmt = { cmd = "prettier --write" }
-ruff-format = "ruff format --force-exclude"
-ruff-lint = "ruff check --fix --exit-non-zero-on-fix --force-exclude"
-shell-format = "shfmt --write --indent=4 --simplify --binary-next-line"
-toml-format = { cmd = "taplo fmt", env = { RUST_LOG = "warn" } }
-toml-lint = "taplo lint --verbose **/pixi.toml"
-typecheck-python = "mypy"
-typos = "typos --write-changes --force-exclude"
+actionlint = { cmd = "actionlint", env = { SHELLCHECK_OPTS = "-e SC2086" }, description = "Lint github actions file." }
+lintall = { cmd = "pre-commit run --all-files --hook-stage=manual", description = "Run all linters and formatters on all code." }
+lint = { cmd = "pre-commit run --hook-stage=manual", description = "Run all linters and formatters on staged code." }
+pre-commit-install = { cmd = "pre-commit install --install-hooks -t=pre-commit -t=pre-push", description = "Install pre-commit dependencies." }
+pre-commit-install-minimal = { cmd = "pre-commit install -t=pre-commit", description = "Install minimal list of pre-commit dependencies." }
+pre-commit-run = { cmd = "pre-commit run --all-files", description = "Run pre-commit on all files." }
+prettier-fmt = { cmd = "prettier --write", description = "Run prettier code formatter." }
+ruff-format = { cmd = "ruff format --force-exclude", description = "Run ruff Python formatter." }
+ruff-lint = { cmd = "ruff check --fix --exit-non-zero-on-fix --force-exclude", description = "Run ruff Python linter." }
+shell-format = { cmd = "shfmt --write --indent=4 --simplify --binary-next-line", description = "Run a shell formatter." }
+toml-format = { cmd = "taplo fmt **/*.toml", env = { RUST_LOG = "warn" }, description = "Run taplo toml formatter." }
+toml-lint = { cmd = "taplo lint --verbose **/*.toml", description = "Run taplo toml linter." }
+typecheck-python = { cmd = "mypy", description = "Run mypy Python type checker." }
+typos = { cmd = "typos --write-changes --force-exclude", description = "Run typos checker." }
 
 [tool.pixi.feature.quarto.dependencies]
 quarto = "*"
@@ -144,3 +144,27 @@ cmd = "quarto preview docs --port {{port}}"
 
 [tool.pixi.feature.quarto.tasks.rd]
 cmd = "quarto render docs"
+
+[tool.pixi.feature.dev.tasks.dev]
+args = [
+  { "arg" = "port", default = "8881" },
+  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+]
+cmd = "uv run panel serve src/tseda --dev --show --port {{port}} --args {{input}}"
+
+[tool.pixi.feature.dev.tasks.admin]
+args = [
+  { "arg" = "port", default = "8882" },
+  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+]
+cmd = "uv run python -m tseda serve {{input}} --admin --port {{port}}"
+
+[tool.pixi.feature.dev.tasks.serve]
+args = [
+  { "arg" = "port", default = "8883" },
+  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+]
+cmd = "uv run python -m tseda serve {{input}} --port {{port}}"
+
+[tool.pixi.tasks]
+test = "uv run pytest -v -s"

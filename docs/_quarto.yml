@@ -30,7 +30,7 @@ quartodoc:
   source_dir: ../src/tseda
   sections:
     - title: Datastore
-      desc: Datatore functions
+      desc: Datastore functions
       contents:
         - datastore.SampleSetsTable
         - datastore.IndividualsTable

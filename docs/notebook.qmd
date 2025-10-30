@@ -169,7 +169,7 @@ struct
 
 ### Individual GNN
 
-The indivdual GNN page displays three widgets:
+The individual GNN page displays three widgets:
 
 1. a map with sampling locations
 2. a bar plot of individual-based GNN values, based on the current

@@ -290,13 +290,13 @@ class Tree(View):
             self.additional_options = "{}"
         return omit_sites, y_ticks
 
-    @param.depends("position", watch=True)
+    @param.depends("position", watch=False)
     def update_slider(self):
         """Updates the slider value based on the selected position."""
         if self.position is not None:
             self.slider.value = self.position
 
-    @param.depends("slider.value_throttled", watch=True)
+    @param.depends("slider.value_throttled", watch=False)
     def update_position(self):
         """Updates the position based on the slider value."""
         self.position = self.slider.value
@@ -381,7 +381,7 @@ class Tree(View):
         rows = [pn.Row(*trees[i : i + 2]) for i in range(0, len(trees), 2)]
         return pn.Column(*rows)
 
-    @param.depends("num_trees.value", watch=True)
+    @param.depends("num_trees.value", watch=False)
     def multiple_trees(self):
         """Sets the default setting depending on if one or several trees are
         displayed."""
@@ -546,7 +546,7 @@ class Tree(View):
         )
         return sidebar_content
 
-    @param.depends("search_by.value", watch=True)
+    @param.depends("search_by.value", watch=False)
     def sidebar(self) -> pn.Column:
         """Makes sure the sidebar is updated whenever the search-by value is
         toggled.
