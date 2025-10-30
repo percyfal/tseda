@@ -4,10 +4,7 @@ utilizing the `diskcache` library."""
 import pathlib
 
 import appdirs
-import daiquiri
 import diskcache
-
-logger = daiquiri.getLogger("cache")
 
 
 def get_cache_dir() -> pathlib.Path:

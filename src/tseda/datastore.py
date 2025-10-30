@@ -31,18 +31,16 @@ TreeSequence.
 import random
 from typing import Dict, List, Optional, Tuple
 
-import daiquiri
 import pandas as pd
 import panel as pn
 import param
 from panel.viewable import Viewer
 
 from tseda import config, model
+from tseda.logging import app_logger as logger
 from tseda.model import Individual, SampleSet
 
 from .gnn import windowed_genealogical_nearest_neighbours
-
-logger = daiquiri.getLogger("tseda")
 
 
 class SampleSetsTable(Viewer):
@@ -974,7 +972,9 @@ def make_sample_sets_table(tsm: model.TSModel) -> SampleSetsTable:
     return SampleSetsTable(table=pd.DataFrame(result))
 
 
-def make_tables(tsm: model.TSModel) -> Tuple[IndividualsTable, SampleSetsTable]:
+def make_tables(
+    tsm: model.TSModel,
+) -> Tuple[IndividualsTable, SampleSetsTable]:
     """Take a TSModel and creates IndividualsTable and SampleSetsTable objects
     from the data in the provided TSModel object.
 

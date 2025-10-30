@@ -2,7 +2,6 @@ import dataclasses
 import pathlib
 import warnings
 
-import daiquiri
 import numba
 import numpy as np
 import tskit
@@ -11,10 +10,9 @@ import zarr
 from tqdm import tqdm
 
 from tseda import TSEDA_DATA_VERSION
+from tseda.logging import cli_logger as logger
 
 from . import jit
-
-logger = daiquiri.getLogger("tseda")
 
 
 def node_is_sample(ts):

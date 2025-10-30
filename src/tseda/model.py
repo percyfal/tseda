@@ -21,7 +21,6 @@ import pathlib
 import re
 from enum import Enum
 
-import daiquiri
 import numpy as np
 import pandas as pd
 import tskit
@@ -32,8 +31,6 @@ from bokeh.palettes import Set3
 from tseda import config
 
 from . import TSEDA_DATA_VERSION
-
-logger = daiquiri.getLogger("tseda")
 
 
 class DataTypes(Enum):

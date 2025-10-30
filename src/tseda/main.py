@@ -17,11 +17,9 @@ information.
 from tseda import app  # noqa
 from tseda.datastore import DataStore, make_tables, IndividualsTable  # noqa
 from tseda.model import TSModel  # noqa
-import daiquiri
 import sys
 
-daiquiri.setup(level="WARN")  # noqa
-logger = daiquiri.getLogger("tseda")
+from tseda.logging import cli_logger as logger  # noqa
 
 
 if len(sys.argv) < 2:

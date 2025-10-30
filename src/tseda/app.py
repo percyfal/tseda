@@ -7,7 +7,6 @@ panel.FastListTemplate object.
 
 import time
 
-import daiquiri
 import holoviews as hv
 import panel as pn
 import param
@@ -16,8 +15,7 @@ from panel.viewable import Viewer
 
 from tseda import config, vpages
 from tseda.datastore import DataStore
-
-logger = daiquiri.getLogger("tseda")
+from tseda.logging import app_logger as logger
 
 RAW_CSS = """
         .sidenav#sidebar {

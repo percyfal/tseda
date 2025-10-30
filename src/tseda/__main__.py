@@ -1,34 +1,33 @@
 import pathlib
+from typing import Callable
 
 import click
-import daiquiri
-
-daiquiri.setup(level="WARN")  # noqa
 import panel as pn  # noqa
+from click.decorators import FC
 
-from . import app  # noqa
-from . import config  # noqa
-from . import model  # noqa
-from . import datastore  # noqa
+from tseda.logging import cli_logger as logger  # noqa
+from tseda.logging import log_level
+
+from . import (
+    app,  # noqa
+    config,  # noqa
+    datastore,  # noqa
+    model,  # noqa
+)
 from . import preprocess as preprocess_  # noqa
 from .datastore import IndividualsTable  # noqa
 from .model import TSModel  # noqa
 
 
-logger = daiquiri.getLogger("tseda")
-
-
-def setup_logging(log_level, no_log_filter):
-    if no_log_filter:
-        logger = daiquiri.getLogger("root")
-        logger.setLevel(log_level)
-    else:
-        loggers = ["tseda", "cache", "bokeh", "tornado"]
-        for logname in loggers:
-            logger = daiquiri.getLogger(logname)
-            logger.setLevel(log_level)
-        logger = daiquiri.getLogger("bokeh.server.protocol_handler")
-        logger.setLevel("CRITICAL")
+def log_filter_option(expose_value: bool = False) -> Callable[[FC], FC]:
+    """Disable logging filters"""
+    return click.option(
+        "--no-log-filter",
+        default=False,
+        is_flag=True,
+        expose_value=expose_value,
+        help="Do not filter the output log (advanced debugging only)",
+    )
 
 
 @click.group()
@@ -48,6 +47,8 @@ def cli():
         "with .tseda extension"
     ),
 )
+@log_filter_option()
+@log_level()
 def preprocess(tszip_path, output):
     """Preprocess a tskit tree sequence or tszip file, producing a .tseda file.
 
@@ -71,17 +72,10 @@ def preprocess(tszip_path, output):
 @click.option(
     "--admin", default=False, is_flag=True, help="Add bokeh admin panel"
 )
-@click.option("--log-level", default="INFO", help="Logging level")
-@click.option(
-    "--no-log-filter",
-    default=False,
-    is_flag=True,
-    help="Do not filter the output log (advanced debugging only)",
-)
-def serve(path, port, show, log_level, no_log_filter, admin):
+@log_filter_option()
+@log_level()
+def serve(path, port, show, admin):
     """Run the tseda datastore server, version based on View base class."""
-    setup_logging(log_level, no_log_filter)
-
     tsm = TSModel(path)
     individuals_table, sample_sets_table = datastore.make_tables(tsm)
 

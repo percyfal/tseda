@@ -8,7 +8,6 @@ dependencies = [
   "tskit>=0.6.0",
   "tszip>=0.2.4",
   "click>=8.2.1",
-  "daiquiri>=3.2.5.1",
   "holoviews>=1.19.1",
   "numba>=0.61.2",
   "diskcache>=5.6.3",
@@ -140,6 +139,7 @@ actionlint = ">=1.7.7,<2"
 go-shfmt = ">=3.11.0,<4"
 prettier = ">=3.5.3,<4"
 taplo = ">=0.9.3,<0.10"
+mypy = ">=1.18.2,<2"
 
 [tool.pixi.feature.lint.tasks]
 actionlint = { cmd = "actionlint", env = { SHELLCHECK_OPTS = "-e SC2086" }, description = "Lint github actions file." }
