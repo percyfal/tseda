@@ -46,32 +46,23 @@ always run programs in the virtual environment with `uv run`, e.g.,
 
 [pyenv issue]: https://github.com/astral-sh/uv/issues/317
 
-## pixi tasks
-
-Currently uv lacks support for tool chains. The project manifest
-defines [pixi] common tasks that can be invoked with `pixi run`. You
-can list all available tasks with `pixi task ls`.
-
-[pixi]: https://pixi.sh/latest/
-
 ## Linting
+
+Currently uv lacks support for tool chains. The easiest way to run
+linting on the codebase is to use [pixi] and run pre-defined tasks.
 
 The basic task to run the linting toolchain is
 
     pixi run lint
 
-This will run a suite of common [pre-commit] hooks on staged data.
-`pixi run lintall` will run the linting toolchain on all repository
-source files.
-
-[pre-commit]: https://pre-commit.com/
+[pixi]: https://pixi.sh/latest/
 
 ## Development with small test data set
 
 Development is facilitated by loading the small data set that is
 provided and reloading upon code changes:
 
-    uv run python -m tseda serve tests/data/test.trees
+    uv run python -m tseda serve tests/data/test.trees.tsdate.tseda
 
 Alternatively, you can run the command as `pixi run serve`.
 
@@ -86,7 +77,7 @@ reflect typical metadata.
 
 The `--admin` option will activate the `/admin` panel:
 
-    uv run python -m tseda serve tests/data/test.trees --admin
+    uv run python -m tseda serve tests/data/test.trees.tsdate.tseda --admin
 
 or
 
