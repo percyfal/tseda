@@ -131,7 +131,6 @@ class GNNHaplotype(View):
             y=populations,
             color=colormap,
             legend="right",
-            sizing_mode="stretch_width",
             fill_alpha=0.5,
             min_height=300,
             responsive=True,
@@ -561,7 +560,7 @@ class IGNNPage(View):
                 pn.Column(
                     self.gnnhaplotype,
                     name="GNN Haplotype Plot",
-                    sizing_mode="stretch_height",
+                    sizing_mode="stretch_both",
                     min_height=600,
                 ),
                 active=[0, 1, 2],
