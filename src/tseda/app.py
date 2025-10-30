@@ -14,7 +14,8 @@ import param
 from holoviews import opts
 from panel.viewable import Viewer
 
-from tseda import config, datastore, vpages
+from tseda import config, vpages
+from tseda.datastore import DataStore
 
 logger = daiquiri.getLogger("tseda")
 
@@ -65,7 +66,7 @@ class DataStoreApp(Viewer):
         for switching between different pages.
     """
 
-    datastore = param.ClassSelector(class_=datastore.DataStore)
+    datastore: DataStore = param.ClassSelector(class_=DataStore)
 
     title = param.String(doc="Application title")
 

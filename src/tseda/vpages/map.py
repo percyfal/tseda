@@ -19,7 +19,6 @@ import param
 import xyzservices.providers as xyz
 
 from tseda import config
-from tseda.datastore import IndividualsTable
 
 from .core import View
 
@@ -51,8 +50,6 @@ class GeoMap(View):
         sidebar() -> pn.Card: Defines the layout of the sidebar options for
         the Geomap.
     """
-
-    individuals_table = param.ClassSelector(class_=IndividualsTable)
 
     tiles_selector = param.Selector(
         default="WorldPhysical",

@@ -6,12 +6,12 @@ from tseda import datastore
 
 @pytest.fixture
 def individuals_table(tsm):
-    data, _ = datastore.preprocess(tsm)
+    data, _ = datastore.make_tables(tsm)
     return data
 
 
-def test_datastore_preprocess(tsm):
-    individuals_table, sample_sets_table = datastore.preprocess(tsm)
+def test_datastore_make_tables(tsm):
+    individuals_table, sample_sets_table = datastore.make_tables(tsm)
     assert individuals_table is not None
     assert sample_sets_table is not None
     sample_sets = individuals_table.sample_sets()

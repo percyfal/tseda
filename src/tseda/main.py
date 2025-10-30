@@ -15,7 +15,7 @@ information.
 """
 
 from tseda import app  # noqa
-from tseda import datastore  # noqa
+from tseda.datastore import DataStore, make_tables, IndividualsTable  # noqa
 from tseda.model import TSModel  # noqa
 import daiquiri
 import sys
@@ -33,16 +33,18 @@ if len(sys.argv) < 2:
 path = sys.argv.pop()
 
 tsm = TSModel(path)
-individuals_table, sample_sets_table = datastore.preprocess(tsm)
+individuals_table, sample_sets_table = make_tables(tsm)
+
+ds = DataStore(
+    tsm=tsm,
+    sample_sets_table=sample_sets_table,
+    individuals_table=individuals_table,
+)
 
 app_ = app.DataStoreApp(
-    datastore=datastore.DataStore(
-        tsm=tsm,
-        sample_sets_table=sample_sets_table,
-        individuals_table=individuals_table,
-    ),
+    datastore=ds,
     title="TSEda Datastore App",
-    views=[datastore.IndividualsTable],
+    views=[IndividualsTable],
 )
 
 app_.view().servable()

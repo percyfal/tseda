@@ -15,10 +15,10 @@ from tseda.datastore import DataStore
 class View(Viewer):
     key = param.String()
     title = param.String()
-    datastore = param.ClassSelector(class_=DataStore)
 
-    def __init__(self, **params):
+    def __init__(self, *, datastore: DataStore, **params):
         super().__init__(**params)
+        self.datastore = datastore
 
     def sidebar(self):
         return pn.Column(pn.pane.Markdown(f"# {self.title}"))

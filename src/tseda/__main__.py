@@ -51,7 +51,7 @@ def cli():
 def preprocess(tszip_path, output):
     """Preprocess a tskit tree sequence or tszip file, producing a .tseda file.
 
-    Calls tsbrowse.preprocess.preprocess.
+    Calls preprocess.
     """
     tszip_path = pathlib.Path(tszip_path)
     if output is None:
@@ -83,7 +83,7 @@ def serve(path, port, show, log_level, no_log_filter, admin):
     setup_logging(log_level, no_log_filter)
 
     tsm = TSModel(path)
-    individuals_table, sample_sets_table = datastore.preprocess(tsm)
+    individuals_table, sample_sets_table = datastore.make_tables(tsm)
 
     logger.info("Starting panel server")
     app_ = app.DataStoreApp(

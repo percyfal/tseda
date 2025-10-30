@@ -6,6 +6,7 @@ author:
   - Per Unneberg
 execute:
   eval: true
+  cache: false
 jupyter:
   jupytext:
     formats: ipynb,qmd

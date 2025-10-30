@@ -823,7 +823,7 @@ class IndividualsTable(Viewer):
         )
 
 
-class DataStore(Viewer):
+class DataStore(param.Parameterized):
     """Class representing a data store for managing and accessing data used for
     analysis. This class provides access to various data sources and
     functionalities related to individuals, sample sets, and the underlying
@@ -854,11 +854,20 @@ class DataStore(Viewer):
             for a specified focal individual and optional window sizes.
     """
 
-    tsm = param.ClassSelector(class_=model.TSModel)
-    sample_sets_table = param.ClassSelector(class_=SampleSetsTable)
-    individuals_table = param.ClassSelector(class_=IndividualsTable)
-
     views = param.List(constant=True)
+
+    def __init__(
+        self,
+        *,
+        tsm: model.TSModel,
+        sample_sets_table: SampleSetsTable,
+        individuals_table: IndividualsTable,
+        **params,
+    ):
+        super().__init__(**params)
+        self.tsm = tsm
+        self.sample_sets_table = sample_sets_table
+        self.individuals_table = individuals_table
 
     @property
     def color(self) -> pd.core.series.Series:
@@ -965,7 +974,7 @@ def make_sample_sets_table(tsm: model.TSModel) -> SampleSetsTable:
     return SampleSetsTable(table=pd.DataFrame(result))
 
 
-def preprocess(tsm: model.TSModel) -> Tuple[IndividualsTable, SampleSetsTable]:
+def make_tables(tsm: model.TSModel) -> Tuple[IndividualsTable, SampleSetsTable]:
     """Take a TSModel and creates IndividualsTable and SampleSetsTable objects
     from the data in the provided TSModel object.
 

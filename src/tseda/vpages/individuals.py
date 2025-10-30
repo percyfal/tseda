@@ -10,9 +10,6 @@ combinations.
 """
 
 import panel as pn
-import param
-
-from tseda.datastore import IndividualsTable, SampleSetsTable
 
 from .core import View
 from .map import GeoMap
@@ -43,9 +40,6 @@ class IndividualsPage(View):
 
     key = "individuals and sets"
     title = "Individuals & sets"
-    sample_sets_table = param.ClassSelector(class_=SampleSetsTable)
-    individuals_table = param.ClassSelector(class_=IndividualsTable)
-    geomap = param.ClassSelector(class_=GeoMap)
 
     def __init__(self, **params):
         super().__init__(**params)
