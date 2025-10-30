@@ -1,5 +1,6 @@
 [project]
 name = "tseda"
+dynamic = ["version"]
 description = "Tree sequence exploratory data analysis"
 authors = [{ name = "Per Unneberg", email = "per.unneberg@scilifelab.se" }]
 dependencies = [
@@ -24,7 +25,31 @@ dependencies = [
 ]
 readme = "README.md"
 requires-python = ">= 3.12"
-dynamic = ["version"]
+classifiers = [
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Development Status :: 3 - Alpha",
+  "Environment :: Other Environment",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: POSIX",
+  "Operating System :: MacOS :: MacOS X",
+  "Topic :: Scientific/Engineering",
+  "Topic :: Scientific/Engineering :: Bio-Informatics",
+]
+keywords = [
+  "population genetics",
+  "tree sequence",
+  "ancestral recombination graph",
+  "evolutionary tree",
+  "statistical genetics",
+  "phylogenetics",
+  "tskit",
+  "visualization",
+]
 
 [dependency-groups]
 dev = [
@@ -94,7 +119,7 @@ addopts = "--doctest-modules --ignore src/tseda/main.py"
 
 [tool.pixi.workspace]
 channels = ["conda-forge", "bioconda"]
-platforms = ["linux-64"]
+platforms = ["linux-64", "osx-64"]
 
 [tool.pixi.pypi-dependencies]
 tseda = { path = ".", editable = true }
@@ -148,21 +173,21 @@ cmd = "quarto render docs"
 [tool.pixi.feature.dev.tasks.dev]
 args = [
   { "arg" = "port", default = "8881" },
-  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+  { "arg" = "input", default = "tests/data/test.trees.tsdate.tseda" },
 ]
 cmd = "uv run panel serve src/tseda --dev --show --port {{port}} --args {{input}}"
 
 [tool.pixi.feature.dev.tasks.admin]
 args = [
   { "arg" = "port", default = "8882" },
-  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+  { "arg" = "input", default = "tests/data/test.trees.tsdate.tseda" },
 ]
 cmd = "uv run python -m tseda serve {{input}} --admin --port {{port}}"
 
 [tool.pixi.feature.dev.tasks.serve]
 args = [
   { "arg" = "port", default = "8883" },
-  { "arg" = "input", default = "tests/data/test.trees.tseda" },
+  { "arg" = "input", default = "tests/data/test.trees.tsdate.tseda" },
 ]
 cmd = "uv run python -m tseda serve {{input}} --port {{port}}"
 

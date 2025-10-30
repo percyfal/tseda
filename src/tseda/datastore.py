@@ -711,6 +711,7 @@ class IndividualsTable(Viewer):
                 {"field": "selected", "dir": "des"},
             ],
             margin=10,
+            sizing_mode="stretch_both",
             text_align={col: "right" for col in self.columns},
             header_filters=self.filters,
         )
