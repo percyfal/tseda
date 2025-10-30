@@ -806,9 +806,9 @@ class IndividualsTable(Viewer):
         return pn.Column(
             pn.Card(
                 modification_header,
-                pn.Row(self.population_from, self.sample_set_to),
+                pn.Column(self.population_from, self.sample_set_to),
                 pn.Row(
-                    pn.Spacer(width=120),
+                    pn.Spacer(width=80),
                     self.restore_button,
                     self.mod_update_button,
                     align="end",
