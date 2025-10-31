@@ -60,9 +60,4 @@ def tsm(tsedafile):
 
 @fixture
 def ds(tsm):
-    individuals_table, sample_sets_table = datastore.make_tables(tsm)
-    return datastore.DataStore(
-        tsm=tsm,
-        individuals_table=individuals_table,
-        sample_sets_table=sample_sets_table,
-    )
+    return datastore.DataStore(tsm=tsm)

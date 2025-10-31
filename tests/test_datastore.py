@@ -38,3 +38,17 @@ def test_individuals_table(individuals_table):
 def test_datastore(ds):
     print(ds.color)
     print(ds.sample_sets_table.color_by_name)
+
+
+@pytest.mark.parametrize("tsm", ["tsm", "tsedafile"], indirect=True)
+def test_init_datastore(tsm):
+    ds = datastore.DataStore(tsm=tsm)
+    assert ds is not None
+    assert isinstance(ds.individuals_table, datastore.IndividualsTable)
+    assert isinstance(ds.sample_sets_table, datastore.SampleSetsTable)
+    ind = ds.individuals_table.loc(5)
+    assert ind["name"] == "tsk_6"
+    assert ind.name == 5
+    sst = ds.sample_sets_table.data.rx.value
+    sst.at[0, "name"] = "foo"
+    assert ds.sample_sets_table.data.rx.value.at[0, "name"] == "foo"

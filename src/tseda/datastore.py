@@ -29,6 +29,7 @@ TreeSequence.
 """
 
 import random
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
@@ -322,8 +323,6 @@ class IndividualsTable(Viewer):
     calculations to change filters.
 
     Attributes:
-        sample_sets_table (param.ClassSelector):
-            ClassSelector for the SampleSetsTable class.
         columns (list):
             The default columns displayed in the table (["name", "color",
             "predefined"]).
@@ -408,7 +407,6 @@ class IndividualsTable(Viewer):
                 - Warning message for invalid data.
     """
 
-    sample_sets_table = param.ClassSelector(class_=SampleSetsTable)
     columns = [
         "color",
         "population",
@@ -508,8 +506,9 @@ class IndividualsTable(Viewer):
         visible=False,
     )
 
-    def __init__(self, **params):
+    def __init__(self, *, sample_sets_table: SampleSetsTable = None, **params):
         super().__init__(**params)
+        self.sample_sets_table = sample_sets_table
         self.table.set_index(["id"], inplace=True)
         self.data = self.param.table.rx()
         all_sample_set_ids = self.get_sample_set_ids()
@@ -828,15 +827,9 @@ class DataStore(param.Parameterized):
     TreeSequenceModel.
 
     Attributes:
-        tsm (param.ClassSelector):
+        tsm (model.TSModel):
             ClassSelector for the model.TSModel object holding the TreeSequence
               data.
-        sample_sets_table (param.ClassSelector):
-            ClassSelector for the SampleSetsTable object managing sample set
-            information.
-        individuals_table (param.ClassSelector):
-            ClassSelector for the IndividualsTable object handling individual
-            data and filtering.
         views (param.List, constant=True):
             A list of views to be displayed.
 
@@ -857,15 +850,64 @@ class DataStore(param.Parameterized):
     def __init__(
         self,
         *,
-        tsm: model.TSModel,
-        sample_sets_table: SampleSetsTable,
-        individuals_table: IndividualsTable,
+        tsm: model.TSModel | Path | str,
         **params,
     ):
         super().__init__(**params)
+        if isinstance(tsm, Path) or isinstance(tsm, str):
+            tsm = model.TSModel(tsm)
         self.tsm = tsm
-        self.sample_sets_table = sample_sets_table
-        self.individuals_table = individuals_table
+        self.init_sample_sets_table()
+        self.init_individuals_table()
+
+    @property
+    def sample_sets_table(self):
+        return self._sample_sets_table
+
+    @sample_sets_table.setter
+    def sample_sets_table(self, value):
+        self._sample_sets_table = value
+
+    @property
+    def individuals_table(self):
+        return self._individuals_table
+
+    @individuals_table.setter
+    def individuals_table(self, value):
+        self._individuals_table = value
+
+    def init_sample_sets_table(self):
+        """
+        Create a SampleSetsTable object from the data in the provided
+        TSModel object, by iterating through the populations in the
+        tree sequence and create a SampleSet object for each one,
+        creating a Pandas DataFrame populated with the population
+        level information.
+        """
+        result = []
+        for ts_pop in self.tsm.ts.populations():
+            ss = SampleSet(
+                sample_set_id=ts_pop.id, population=ts_pop, predefined=True
+            )
+            result.append(ss)
+        self.sample_sets_table = SampleSetsTable(table=pd.DataFrame(result))
+
+    def init_individuals_table(self):
+        """
+        Creates an IndividualsTable object from the data in the
+        provided TSModel object, by iterating through the individuals
+        in the tree sequence and creates an Individual object for each
+        one, creating a Pandas DataFrame populated with the individual
+        level information.
+        """
+        result = []
+        for ts_ind in self.tsm.ts.individuals():
+            ind = Individual(individual=ts_ind)
+            result.append(ind)
+        self.individuals_table = IndividualsTable(
+            table=pd.DataFrame(result),
+            sample_sets_table=self.sample_sets_table,
+        )
 
     @property
     def color(self) -> pd.core.series.Series:
