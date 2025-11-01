@@ -1,8 +1,9 @@
 import os
 
 import panel as pn
+import pytest
 import tskit
-from pytest import fixture
+from click.testing import CliRunner
 
 from tseda import datastore, model
 
@@ -11,13 +12,13 @@ dirname = os.path.abspath(os.path.dirname(__file__))
 PORT = [6000]
 
 
-@fixture
+@pytest.fixture
 def port():
     PORT[0] += 1
     return PORT[0]
 
 
-@fixture(autouse=True)
+@pytest.fixture(autouse=True)
 def server_cleanup():
     """
     Clean up server state after each test.
@@ -28,36 +29,42 @@ def server_cleanup():
         pn.state.reset()
 
 
-@fixture
+@pytest.fixture
 def treesfile():
     return os.path.join(dirname, "data/test.trees")
 
 
-@fixture
+@pytest.fixture
 def tszipfile():
     return os.path.join(dirname, "data/test.trees.tsz")
 
 
-@fixture
+@pytest.fixture
 def tsbrowsefile():
     return os.path.join(dirname, "data/test.trees.tsbrowse")
 
 
-@fixture
+@pytest.fixture
 def tsedafile():
     return os.path.join(dirname, "data/test.trees.tseda")
 
 
-@fixture
+@pytest.fixture
 def ts(treesfile):
     return tskit.load(treesfile)
 
 
-@fixture
+@pytest.fixture
 def tsm(tsedafile):
     return model.TSModel(tsedafile)
 
 
-@fixture
+@pytest.fixture
 def ds(tsm):
     return datastore.DataStore(tsm=tsm)
+
+
+@pytest.fixture(scope="function")
+def runner():
+    """Base client runner."""
+    return CliRunner()

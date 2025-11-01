@@ -15,7 +15,7 @@ information.
 """
 
 from tseda import app  # noqa
-from tseda.datastore import DataStore, make_tables, IndividualsTable  # noqa
+from tseda.datastore import DataStore, IndividualsTable  # noqa
 from tseda.model import TSModel  # noqa
 import sys
 
@@ -31,13 +31,8 @@ if len(sys.argv) < 2:
 path = sys.argv.pop()
 
 tsm = TSModel(path)
-individuals_table, sample_sets_table = make_tables(tsm)
 
-ds = DataStore(
-    tsm=tsm,
-    sample_sets_table=sample_sets_table,
-    individuals_table=individuals_table,
-)
+ds = DataStore(tsm=tsm)
 
 app_ = app.DataStoreApp(
     datastore=ds,

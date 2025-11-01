@@ -77,15 +77,10 @@ def preprocess(tszip_path, output):
 def serve(path, port, show, admin):
     """Run the tseda datastore server, version based on View base class."""
     tsm = TSModel(path)
-    individuals_table, sample_sets_table = datastore.make_tables(tsm)
 
     logger.info("Starting panel server")
     app_ = app.DataStoreApp(
-        datastore=datastore.DataStore(
-            tsm=tsm,
-            sample_sets_table=sample_sets_table,
-            individuals_table=individuals_table,
-        ),
+        datastore=datastore.DataStore(tsm=tsm),
         title="TSEda Datastore App",
         views=[IndividualsTable],
     )
