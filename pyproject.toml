@@ -170,6 +170,10 @@ cmd = "quarto preview docs --port {{port}}"
 [tool.pixi.feature.quarto.tasks.rd]
 cmd = "quarto render docs"
 
+[tool.pixi.feature.quarto.tasks.nb]
+args = [{ "arg" = "port", default = "8885" }]
+cmd = "jupyter-lab --port {{port}}"
+
 [tool.pixi.feature.dev.tasks.dev]
 args = [
   { "arg" = "port", default = "8881" },

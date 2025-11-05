@@ -6325,8 +6325,8 @@ packages:
   sha256: 5d392f2d244deb1866556457d6f3516792124a23d1c3a463a2e8668a5d1c15dd
 - pypi: ./
   name: tseda
-  version: 0.1.dev464+ge79f43373.d20251030
-  sha256: c8b3bbb3d89c66988ef1a5502c384b9044ffe1b3b9d863b26678cc0b3e58213f
+  version: 0.1.dev462+gbe687c839.d20251105
+  sha256: 1fe9efb776f45f234ea8544e55e9cc8ae757bf1a2c9654a7c3f50a293f958acc
   requires_dist:
   - appdirs>=1.4.4
   - cartopy>=0.23.0
