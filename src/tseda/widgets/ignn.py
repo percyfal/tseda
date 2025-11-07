@@ -15,6 +15,7 @@ from bokeh.models import (
 from bokeh.plotting import figure
 
 from .base import BaseFigure, WindowedFigure
+from .mixins import SampleSelectWarningMixin
 
 
 class IGNNHaplotype(WindowedFigure):
@@ -229,12 +230,10 @@ class IGNNHaplotype(WindowedFigure):
             return nodes[1]
 
 
-class IGNNVBar(BaseFigure):
+class IGNNVBar(BaseFigure, SampleSelectWarningMixin):
     """VBar GNN base figure.
 
     Attributes:
-        warning_pane (pn.Alert): a warning panel that is displayed if no
-        samples are selected.
 
     Methods:
         gnn() -> pd.DataFrame: gets the data for the GNN VBar plot.
@@ -243,12 +242,6 @@ class IGNNVBar(BaseFigure):
         sidebar() -> pn.Card: defines the layout of the sidebar content area
         for the VBar options.
     """
-
-    warning_pane = pn.pane.Alert(
-        """Please select at least 1 sample to visualize this graph.
-        Sample selection is done on the Individuals page.""",
-        alert_type="warning",
-    )
 
     # TODO: move to DataStore class?
     def gnn(self) -> pd.DataFrame:
@@ -280,9 +273,6 @@ class IGNNVBar(BaseFigure):
         return df
 
     def _data(self):
-        sample_sets = self.datastore.individuals_table.sample_sets()
-        if len(list(sample_sets.keys())) < 1:
-            return self.warning_pane
         df = self.gnn()
         sample_sets = self.datastore.sample_sets_table.data.rx.value
         inds = self.datastore.individuals_table.data.rx.value
@@ -377,6 +367,8 @@ class IGNNVBar(BaseFigure):
             select a sample.
             pn.pane.plot.Bokeh: a panel with the GNN VBar plot.
         """
+        if self.datastore.n_sample_sets_ids < 1:
+            return self.sample_select_warning
         df, levels, groups, color = self._data()
         df = self._post_process(df=df, groups=groups, color=color)
         factors = df["x"].values

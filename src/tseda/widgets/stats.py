@@ -10,6 +10,7 @@ import param
 from holoviews.plotting.util import process_cmap
 
 from .base import WindowedFigure
+from .mixins import MultiSampleSelectWarningMixin, SampleSelectWarningMixin
 
 
 # TODO: make sure this is safe
@@ -19,7 +20,7 @@ def eval_comparisons(comparisons):
     return [tuple(map(int, item.split(","))) for item in evaluated]
 
 
-class BaseStats(WindowedFigure):
+class BaseStats(WindowedFigure, SampleSelectWarningMixin):
     """Base class for statistics figures
 
     Attributes:
@@ -40,7 +41,10 @@ class BaseStats(WindowedFigure):
     """
 
     _fig_text = {}
-    _min_sample_sets = 1
+    dim_key = "ss"
+    dim_label = "Sample set"
+    _plotfun = "Curve"
+
     mode = param.Selector(
         objects=["site"],
         default="site",
@@ -53,10 +57,15 @@ class BaseStats(WindowedFigure):
         doc="""Select statistic to plot.""",
     )
 
-    def __init__(self, **params: Any):
+    def __init__(self, caption: bool = False, **params: Any):
         super().__init__(**params)
         if self.datastore.tsm.is_calibrated:
             self.param.mode.objects = ["site", "branch"]
+        self._caption = caption
+
+    @property
+    def plotfun(self):
+        return getattr(hv, self._plotfun)
 
     @property
     def position(self):
@@ -71,18 +80,29 @@ class BaseStats(WindowedFigure):
         return hv.Dimension("statistic", label=self.statistic)
 
     @property
-    def sample_select_warning(self) -> pn.pane.Alert:
-        return pn.pane.Alert(
-            (
-                f"Select at least {self._min_sample_sets} sample set to see"
-                " this plot. Sample sets are selected on the Individuals page"
-            ),
-            alert_type="warning",
-        )
-
-    @property
     def columns(self) -> List[str]:
         return self.datastore.sample_sets_names
+
+    @property
+    def kdims(self) -> List[hv.Dimension]:
+        return [hv.Dimension(self.dim_key, label=self.dim_label)]
+
+    @property
+    def holomap(self) -> hv.HoloMap:
+        return hv.HoloMap(self.data_dict, kdims=self.kdims)
+
+    @property
+    def data_dict(self) -> dict:
+        data = self.data()
+        data_dict = {
+            x: self.plotfun(
+                (self.make_windows(), data[x]),
+                self.position,
+                self.statistic_dim,
+            ).opts(color=self.datastore.sample_sets_table.color_by_name[x])
+            for x in data.columns
+        }
+        return data_dict
 
     def data(self, **kw):
         if self.statistic is None:
@@ -98,6 +118,28 @@ class BaseStats(WindowedFigure):
             data,
             columns=self.columns,
         )
+
+    # FIXME: Several types of plots that require different dimensions
+    # (holoviews)
+    @property
+    def plot(self) -> pn.panel:
+        return pn.panel(
+            self.holomap.overlay(self.dim_key).opts(legend_position="right"),
+            sizing_mode="stretch_width",
+        )
+
+    @property
+    def caption(self):
+        return self._fig_text[self.statistic]
+
+    def __panel__(self) -> Union[pn.panel, pn.Column, pn.pane.Alert]:
+        if self.datastore.n_sample_sets_ids < 1:
+            return self.sample_select_warning
+        if self.statistic not in self._fig_text:
+            raise ValueError("Invalid statistic")
+        if self._caption:
+            return pn.Column(self.plot, self.caption)
+        return self.plot
 
 
 class OnewayStats(BaseStats):
@@ -129,31 +171,10 @@ class OnewayStats(BaseStats):
             oneway statistics plot or a warning message if no sample sets are
             selected.
         """
-        if self.datastore.n_sample_sets_ids < 1:
-            return self.sample_select_warning
-        if self.statistic not in self._fig_text:
-            raise ValueError("Invalid statistic")
-        data = self.data()
-        data_dict = {
-            ss: hv.Curve(
-                (self.make_windows(), data[ss]),
-                self.position,
-                self.statistic_dim,
-            ).opts(color=self.datastore.sample_sets_table.color_by_name[ss])
-            for ss in data.columns
-        }
-        kdims = [hv.Dimension("ss", label="Sample set")]
-        holomap = hv.HoloMap(data_dict, kdims=kdims)
-        return pn.Column(
-            pn.panel(
-                holomap.overlay("ss").opts(legend_position="right"),
-                sizing_mode="stretch_width",
-            ),
-            pn.pane.Markdown(self._fig_text[self.statistic]),
-        )
+        return super().__panel__()
 
 
-class MultiwayStats(BaseStats):
+class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
     """Oneway statistics base figure
 
     Create a base figure for oneway statistics plots.
@@ -163,7 +184,6 @@ class MultiwayStats(BaseStats):
 
     """
 
-    _min_sample_sets = 2
     _fig_text = {
         "Fst": "**Multiway Fst plot** - Lorem Ipsum",
         "divergence": "**Multiway divergence plot** - Lorem Ipsum",

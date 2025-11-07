@@ -29,7 +29,7 @@ class GNN(View):
     """Makes the GNN plot.
 
     Attributes:
-        warnimng_pane (pn.pane.Alert): A warning message that is activated
+        warning_pane (pn.pane.Alert): A warning message that is activated
         if less than two sample sets are selected.
 
     Methods:
