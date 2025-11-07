@@ -243,6 +243,19 @@ class SampleSetsTable(Viewer):
         """
         return self.data.rx.value.loc[i]
 
+    def tabulator(self, **kw):
+        return pn.widgets.Tabulator(
+            self.data,
+            layout="fit_data_table",
+            selectable=True,
+            page_size=10,
+            pagination="remote",
+            margin=10,
+            formatters=self.formatters,
+            editors=self.editors,
+            **kw,
+        )
+
     @pn.depends("create_sample_set_button.value")
     def __panel__(self) -> pn.Column:
         """Returns the main content of the page which is retrieved from the
@@ -253,23 +266,9 @@ class SampleSetsTable(Viewer):
         """
         self.create_new_sample_set()
 
-        table = pn.widgets.Tabulator(
-            self.data,
-            layout="fit_data_table",
-            selectable=True,
-            page_size=10,
-            pagination="remote",
-            margin=10,
-            formatters=self.formatters,
-            editors=self.editors,
-            configuration={
-                "rowHeight": 40,
-            },
-            height=500,
-        )
         return pn.Column(
             self.tooltip,
-            table,
+            self.tabulator(configuration={"rowHeight": 40}, height=500),
         )
 
     def sidebar_table(self) -> pn.Card:
@@ -278,19 +277,8 @@ class SampleSetsTable(Viewer):
         Returns:
             pn.Card: The layout for the sidebar.
         """
-        table = pn.widgets.Tabulator(
-            self.data,
-            layout="fit_data_table",
-            selectable=True,
-            page_size=10,
-            pagination="remote",
-            margin=10,
-            formatters=self.formatters,
-            editors=self.editors,
-            hidden_columns=["id"],
-        )
         return pn.Card(
-            pn.Column(self.tooltip, table),
+            pn.Column(self.tooltip, self.tabulator(hidden_columns=["id"])),
             title="Sample sets table quick view",
             collapsed=True,
             header_background=config.SIDEBAR_BACKGROUND,
@@ -875,6 +863,26 @@ class DataStore(param.Parameterized):
     @individuals_table.setter
     def individuals_table(self, value):
         self._individuals_table = value
+
+    @property
+    def sample_sets_dictionary(self):
+        return self.individuals_table.sample_sets()
+
+    @property
+    def sample_sets_ids(self):
+        return list(self.sample_sets_dictionary.keys())
+
+    @property
+    def sample_sets_individuals(self):
+        return list(self.sample_sets_dictionary.values())
+
+    @property
+    def n_sample_sets_ids(self):
+        return len(self.sample_sets_ids)
+
+    @property
+    def sample_sets_names(self):
+        return [self.sample_sets_table.names[i] for i in self.sample_sets_ids]
 
     def init_sample_sets_table(self):
         """

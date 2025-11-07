@@ -6,6 +6,7 @@ import param
 from panel.viewable import Viewer
 
 from tseda.datastore import DataStore
+from tseda.windows import make_windows
 
 
 @dataclass
@@ -81,4 +82,20 @@ class BaseFigure(BaseView):
         super().__init__(**params)
         self.font_sizes = FontSizes(
             self.base_font_size, self.font_scale, self.font_unit
+        )
+
+
+class WindowedFigure(BaseFigure):
+    window_size = param.Integer(
+        default=10000,
+        bounds=(1, None),
+        doc="""Size of the sliding window to use for statistics.""",
+    )
+
+    def __init__(self, **params):
+        super().__init__(**params)
+
+    def make_windows(self):
+        return make_windows(
+            self.window_size, self.datastore.tsm.ts.sequence_length
         )

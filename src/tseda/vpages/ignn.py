@@ -22,8 +22,8 @@ import hvplot.pandas  # noqa
 import panel as pn
 import param
 
+import tseda.widgets as widgets
 from tseda import config
-from tseda.widgets import IGNNHaplotype, IGNNVBar
 
 from .core import View
 from .map import GeoMap
@@ -32,7 +32,7 @@ hv.extension("bokeh")
 pn.extension(sizing_mode="stretch_both")
 
 
-class GNNHaplotype(IGNNHaplotype):
+class GNNHaplotype(widgets.IGNNHaplotype):
     """Make GNN haplotype plot. This class creates a Panel object that displays
     a GNN haplotype plot for a selected individual.
 
@@ -75,7 +75,7 @@ class GNNHaplotype(IGNNHaplotype):
         )
 
 
-class VBar(IGNNVBar):
+class VBar(widgets.IGNNVBar):
     """Make VBar plot of GNN output. This class creates a Panel object that
     displays a VBar plot of the sample sets.
 

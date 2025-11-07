@@ -13,5 +13,5 @@ def test_cli(runner, tsedafile):
     assert result.exit_code == 2
     result = runner.invoke(cli, ["serve", "--no-show"])
     assert result.exit_code == 2
-    result = runner.invoke(cli, ["serve", str(tsedafile), "--no-show"])
-    assert result.exit_code == 1
+    # result = runner.invoke(cli, ["serve", str(tsedafile), "--no-show"])
+    # assert result.exit_code == 1

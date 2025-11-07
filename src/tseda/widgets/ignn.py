@@ -14,17 +14,10 @@ from bokeh.models import (
 )
 from bokeh.plotting import figure
 
-from tseda.vpages.core import make_windows
-
-from .base import BaseFigure
-
-__all__ = (
-    "IGNNHaplotype",
-    "IGNNVBar",
-)
+from .base import BaseFigure, WindowedFigure
 
 
-class IGNNHaplotype(BaseFigure):
+class IGNNHaplotype(WindowedFigure):
     """GNN haplotype base figure.
 
     Create a GNN haplotype plot for a selected individual.
@@ -73,9 +66,7 @@ class IGNNHaplotype(BaseFigure):
         if self.individual_id is None:
             return pn.pane.Markdown("Enter a sample ID")
         if self.window_size is not None:
-            windows = make_windows(
-                self.window_size, self.datastore.tsm.ts.sequence_length
-            )
+            windows = self.make_windows()
         else:
             windows = None
         data = self.datastore.haplotype_gnn(
@@ -101,7 +92,7 @@ class IGNNHaplotype(BaseFigure):
             color=colormap,
             legend="right",
             fill_alpha=0.5,
-            min_height=300,
+            min_height=self.height,
             responsive=True,
             tools=[
                 "pan",
@@ -232,7 +223,7 @@ class IGNNHaplotype(BaseFigure):
                 pn.pane.Markdown(f"### Haplotype 0 (sample id {nodes[0][0]})"),
                 self.plot_haplotype0,
                 pn.pane.Markdown(f"### Haplotype 1 (sample id {nodes[0][1]})"),
-                self.plot_haplotype0,
+                self.plot_haplotype1,
             )
         else:
             return nodes[1]
@@ -324,7 +315,6 @@ class IGNNVBar(BaseFigure):
         return hover
 
     def _post_process(self, *, df, groups, color) -> pd.DataFrame:
-        print("Running in _post_process")
         return df
 
     def _make_figure(
@@ -399,3 +389,9 @@ class IGNNVBar(BaseFigure):
             factors=factors,
         )
         return pn.panel(fig)
+
+
+__all__ = (
+    "IGNNHaplotype",
+    "IGNNVBar",
+)

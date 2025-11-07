@@ -252,6 +252,10 @@ class TSModel:
             df["id"] = df.index
             setattr(self, f"{table_name}_df", df)
 
-        @property
-        def file_uuid(self):
-            return self.ts.file_uuid
+    @property
+    def file_uuid(self):
+        return self.ts.file_uuid
+
+    @property
+    def is_calibrated(self):
+        return self.ts.time_units != "uncalibrated"
