@@ -30,7 +30,7 @@ TreeSequence.
 
 import random
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 
 import pandas as pd
 import panel as pn
@@ -86,6 +86,11 @@ class SampleSetsTable(Viewer):
             specific id
     """
 
+    _tooltip = (
+        "The name and color of each sample set are editable. In the "
+        "color column, select a color from the dropdown list. In the "
+        "individuals table, you can assign individuals to sample sets."
+    )
     columns = ["name", "color", "predefined"]
     editors = {k: None for k in columns}
     editors["color"] = {
@@ -147,13 +152,7 @@ class SampleSetsTable(Viewer):
             pn.widgets.TooltipIcon: A TooltipIcon widget displaying the
             instructions.
         """
-        return pn.widgets.TooltipIcon(
-            value=(
-                "The name and color of each sample set are editable. In the "
-                "color column, select a color from the dropdown list. In the "
-                "individuals table, you can assign individuals to sample sets."
-            ),
-        )
+        return pn.widgets.TooltipIcon(value=self._tooltip)
 
     def create_new_sample_set(self):
         """Creates a new sample set with the provided name in the
@@ -395,6 +394,19 @@ class IndividualsTable(Viewer):
                 - Warning message for invalid data.
     """
 
+    _tooltip = (
+        "Individuals table with columns relevant for modifying plots. "
+        "The `population_id` column is immutable and displays the  "
+        "population id of the individual, as assigned during "
+        "inference. The `sample_set_id` column is editable and can "
+        "be assigned to a sample set id from the sample set table "
+        "through a drop-down list by clicking on a cell. "
+        "The `selected` column indicates whether an individual is  "
+        "included in the analyses or not, and can be toggled to  "
+        "exclude/include individuals of choice. Individuals lacking "
+        "geolocation coordinates (`longitude`/`latitude`) are not  "
+        "displayed in the GeoMap plots."
+    )
     columns = [
         "color",
         "population",
@@ -452,7 +464,7 @@ class IndividualsTable(Viewer):
         default=20,
         doc="Number of rows per page to display",
     )
-    sample_select = pn.widgets.MultiChoice(
+    sample_set_select = pn.widgets.MultiChoice(
         name="Select sample sets",
         description="Select samples based on the sample set ID.",
         options=[],
@@ -500,8 +512,8 @@ class IndividualsTable(Viewer):
         self.table.set_index(["id"], inplace=True)
         self.data = self.param.table.rx()
         all_sample_set_ids = self.get_sample_set_ids()
-        self.sample_select.options = all_sample_set_ids
-        self.sample_select.value = all_sample_set_ids
+        self.sample_set_select.options = all_sample_set_ids
+        self.sample_set_select.value = all_sample_set_ids
 
     @property
     def tooltip(self) -> pn.widgets.TooltipIcon:
@@ -512,21 +524,7 @@ class IndividualsTable(Viewer):
             pn.widgets.TooltipIcon: A TooltipIcon widget displaying
             information.
         """
-        return pn.widgets.TooltipIcon(
-            value=(
-                "Individuals table with columns relevant for modifying plots. "
-                "The `population_id` column is immutable and displays the  "
-                "population id of the individual, as assigned during "
-                "inference. The `sample_set_id` column is editable and can "
-                "be assigned to a sample set id from the sample set table "
-                "through a drop-down list by clicking on a cell. "
-                "The `selected` column indicates whether an individual is  "
-                "included in the analyses or not, and can be toggled to  "
-                "exclude/include individuals of choice. Individuals lacking "
-                "geolocation coordinates (`longitude`/`latitude`) are not  "
-                "displayed in the GeoMap plots."
-            ),
-        )
+        return pn.widgets.TooltipIcon(value=self._tooltip)
 
     def sample_sets(self, only_selected: Optional[bool] = True):
         """Returns a dictionary with a sample set id to samples list mapping.
@@ -702,9 +700,18 @@ class IndividualsTable(Viewer):
         )
         return combined_table
 
+    def toggle_sample_set(self, sample_set_id: Union[int, list]):
+        """Toggle selection of a sample set by its numerical id."""
+        if isinstance(sample_set_id, int):
+            sample_set_id = [sample_set_id]
+        i = self.data.rx.value.sample_set_id.isin(sample_set_id)
+        self.data.rx.value.loc[i, "selected"] = ~self.data.rx.value.loc[
+            i, "selected"
+        ]
+
     @pn.depends(
         "page_size",
-        "sample_select.value",
+        "sample_set_select.value",
         "mod_update_button.value",
         "refresh_button.value",
         "restore_button.value",
@@ -720,11 +727,11 @@ class IndividualsTable(Viewer):
         self.population_from.options = self.get_population_ids()
         all_sample_set_ids = self.get_sample_set_ids()
         self.sample_set_to.options = all_sample_set_ids
-        self.sample_select.options = all_sample_set_ids
+        self.sample_set_select.options = all_sample_set_ids
 
-        if isinstance(self.sample_select.value, list):
+        if isinstance(self.sample_set_select.value, list):
             self.data.rx.value["selected"] = False
-            for sample_set_id in self.sample_select.value:
+            for sample_set_id in self.sample_set_select.value:
                 self.data.rx.value.loc[
                     self.data.rx.value.sample_set_id == sample_set_id,
                     "selected",
@@ -762,7 +769,7 @@ class IndividualsTable(Viewer):
         """
         return pn.Card(
             self.param.page_size,
-            self.sample_select,
+            self.sample_set_select,
             collapsed=False,
             title="Individuals table options",
             header_background=config.SIDEBAR_BACKGROUND,

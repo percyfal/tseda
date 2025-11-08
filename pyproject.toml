@@ -21,6 +21,7 @@ dependencies = [
   "numcodecs<0.16",
   "tornado>=6.4.1",
   "zarr<3",
+  "scipy>=1.16.3",
 ]
 readme = "README.md"
 requires-python = ">= 3.12"

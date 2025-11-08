@@ -30,7 +30,7 @@ def test_component(page, port, ds):
 
     page.get_by_role("button", name="Structure").click()
     time.sleep(10)
-    expect(page.get_by_text("GNN cluster plot").nth(0)).to_be_visible()
+    expect(page.get_by_text("Mean GNN Plot").nth(0)).to_be_visible()
     expect(page.get_by_text("Structure").nth(0)).to_be_visible()
 
     page.get_by_role("button", name="iGNN").click()

@@ -214,12 +214,7 @@ The `OnewayStats` widget plots statistics that apply to single sample
 sets, such as diversity or Tajima's D.
 
 ```{python}
-p = widgets.OnewayStats(datastore=ds)
-p
-```
-
-```{python}
-p = widgets.OnewayStats(datastore=ds, statistic="Tajimas_D")
+p = widgets.OnewayStats(datastore=ds, caption=False)
 p
 ```
 
@@ -234,15 +229,6 @@ comparisons grows quickly with the number of sample sets, the
 requested comparisons have to be set manually.
 
 ```{python}
-p = widgets.MultiwayStats(datastore=ds)
-p.comparisons.value = ["0 & 1", "0 & 2", "0 & 3"]
-```
-
-```{python}
-p
-```
-
-```{python}
 p = widgets.MultiwayStats(datastore=ds, statistic="divergence")
 p.comparisons.value = ["0 & 1", "0 & 2", "0 & 3"]
 p.mode = "branch"
@@ -255,6 +241,36 @@ p.comparisons.value = ["0 & 1", "0 & 2", "1 & 2"]
 
 ```{python}
 p
+```
+
+### Structure plots
+
+The structure module consists of a number of plots to quickly plot
+heatmap comparisons between samples and sample sets.
+
+`IndividualGNNFigure` shows a heatmap comparing all-vs-all samples. By
+default the GNN values are Z-transformed.
+
+```{python}
+widgets.IndividualGNNFigure(datastore=ds)
+```
+
+`MeanGNNFigure` in turn averages GNN values over each population. This
+plot is similar to Figure 4 in Kelleher et al 2019.
+
+```{python}
+p = widgets.MeanGNNFigure(datastore=ds)
+```
+
+```{python}
+widgets.MeanGNNFigure(datastore=ds)
+```
+
+Finally, `FstFigure` plots a heatmap of average Fst differences
+between populations.
+
+```{python}
+widgets.FstFigure(datastore=ds, zscore=False)
 ```
 
 ## Accessing vpages

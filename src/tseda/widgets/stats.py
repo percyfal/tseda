@@ -266,7 +266,7 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
             pn.Column: The layout for the main content area.
         """
         self.set_multichoice_options()
-        if self.datastore.n_sample_sets_ids < 1:
+        if self.datastore.n_sample_sets_ids < self._min_sample_sets:
             return self.sample_select_warning
         if self.comparisons.value == []:
             return pn.pane.Markdown(

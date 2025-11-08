@@ -41,6 +41,8 @@ class FontSizes:
         self.huge = FontSize("huge", self.unit, int(self.base_font_size * 2.0))
 
 
+# TODO: should the base view only concern itself with data
+# transformations and defer viz to Figure classes?
 class BaseView(Viewer):
     key = param.String()
     title = param.String()
