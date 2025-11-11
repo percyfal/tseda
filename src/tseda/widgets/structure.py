@@ -15,7 +15,7 @@ class IndividualGNNFigure(BaseFigure, IndividualGNNMixin):
         return p
 
 
-class MeanGNNFigure(BaseFigure, MeanGNNMixin):
+class MeanGNNFigure(BaseFigure, MeanGNNMixin, MultiSampleSelectWarningMixin):
     """Make a plot of mean GNN outputs."""
 
     def __panel__(self):
@@ -26,8 +26,13 @@ class MeanGNNFigure(BaseFigure, MeanGNNMixin):
 class FstFigure(BaseFigure, FstMixin, MultiSampleSelectWarningMixin):
     """Make a plot of Fst between sample sets."""
 
-    _min_sample_sets = 2
-
     def __panel__(self):
         p = self.data.hvplot.heatmap(cmap=cc.bgy, height=300, responsive=True)
         return p
+
+
+__all__ = (
+    "IndividualGNNFigure",
+    "MeanGNNFigure",
+    "FstFigure",
+)

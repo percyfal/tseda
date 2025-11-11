@@ -1,11 +1,4 @@
-"""Population genetic statistics.
-
-TODO:
-- add more stats
-- add xwheel zoom and pan
-- box plots
-- distribution plots
-"""
+"""Oneway population genetics statistics visualization module."""
 
 import holoviews as hv
 import panel as pn
@@ -45,32 +38,6 @@ class OnewayStats(widgets.OnewayStats, TooltipMixin):
         )
 
 
-class MultiwayStats(widgets.MultiwayStats, TooltipMixin):
-    _tooltip = (
-        "Multiway statistical plot. The colors can be modified "
-        "in the colormap dropdown list."
-    )
-
-    def sidebar(self) -> pn.Card:
-        """Returns the content of the sidebar.
-
-        Returns:
-            pn.Card: The layout for the sidebar.
-        """
-        return pn.Card(
-            self.param.mode,
-            self.param.statistic,
-            self.param.window_size,
-            self.comparisons,
-            self.param.colormap,
-            collapsed=False,
-            title="Multiway statistics plotting options",
-            header_background=config.SIDEBAR_BACKGROUND,
-            active_header_background=config.SIDEBAR_BACKGROUND,
-            styles=config.VCARD_STYLE,
-        )
-
-
 class StatsPage(View):
     """This class defines a view for the "Statistics" page.
 
@@ -81,8 +48,6 @@ class StatsPage(View):
         The title of the page (default: "Statistics").
     oneway (param.ClassSelector):
         A parameter to select the OnewayStats class for one-way plots.
-    multiway (param.ClassSelector):
-        A parameter to select the MultiwayStats class for multi-way plots.
     sample_sets (SampleSetsTable):  # Assuming SampleSetsTable exists elsewhere
         The SampleSetsTable object for managing sample set information.
 
@@ -94,17 +59,13 @@ class StatsPage(View):
         Creates the sidebar panel for the "Statistics"
     """
 
-    key = "stats"
-    title = "Statistics"
+    key = "oneway"
+    title = "Oneway"
     oneway = param.ClassSelector(class_=OnewayStats)
-    multiway = param.ClassSelector(class_=MultiwayStats)
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.oneway = OnewayStats(
-            datastore=self.datastore, sizing_mode="stretch_width"
-        )
-        self.multiway = MultiwayStats(
             datastore=self.datastore, sizing_mode="stretch_width"
         )
         self.sample_sets = self.datastore.sample_sets_table
@@ -116,19 +77,9 @@ class StatsPage(View):
             pn.Column: The layout for the main content area.
         """
         return pn.Column(
-            pn.Accordion(
-                pn.Column(
-                    self.oneway.tooltip,
-                    self.oneway,
-                    name="Oneway Statistics Plot",
-                ),
-                pn.Column(
-                    self.multiway.tooltip,
-                    self.multiway,
-                    name="Multiway Statistics Plot",
-                ),
-                active=[0, 1],
-            ),
+            self.oneway.tooltip,
+            self.oneway,
+            name="Oneway Statistics Plot",
         )
 
     def sidebar(self):
@@ -153,6 +104,5 @@ class StatsPage(View):
                 sizing_mode="stretch_width",
             ),
             self.oneway.sidebar,
-            self.multiway.sidebar,
             self.sample_sets.sidebar_table,
         )

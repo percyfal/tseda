@@ -1,6 +1,8 @@
 from . import (
     ignn,
     individuals,
+    multiway,
+    oneway,
     overview,
     stats,
     structure,
@@ -13,6 +15,8 @@ PAGES = [
     structure.StructurePage,
     ignn.IGNNPage,
     stats.StatsPage,
+    oneway.StatsPage,
+    multiway.StatsPage,
     trees.TreesPage,
 ]
 

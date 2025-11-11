@@ -10,12 +10,16 @@ The input trees file must be tszipped and preprocessed into a
 `tsbrowse` file. Given a trees file `data.trees` the following
 commands perform compression and preprocessing of the file
 
-`tszip data.trees`
-`python -m tseda preprocess data.trees.tsz`
+```{bash}
+tszip data.trees
+python -m tseda preprocess data.trees.tsz
+```
 
 to produce the output `data.trees.tseda`. To launch the web app run
 
+```{bash}
 `python -m tseda serve data.trees.tseda`
+```
 
 <!-- markdownlint-disable MD033 -->
 

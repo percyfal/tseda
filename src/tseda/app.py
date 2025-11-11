@@ -124,11 +124,12 @@ class DataStoreApp(Viewer):
             yield self.pages[selected_page].sidebar
 
         self._template = pn.template.FastListTemplate(
-            title=(
-                self.datastore.tsm.name[:75] + "..."
-                if len(self.datastore.tsm.name) > 75
-                else self.datastore.tsm.name
-            ),
+            # title=(
+            #     self.datastore.tsm.name[:75] + "..."
+            #     if len(self.datastore.tsm.name) > 75
+            #     else self.datastore.tsm.name
+            # ),
+            title="variants.tseda",
             header=[header_selector],
             sidebar=get_sidebar,
             main=get_content,

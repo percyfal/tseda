@@ -117,23 +117,32 @@ class BaseStats(WindowedFigure, SampleSelectWarningMixin):
         return pd.DataFrame(
             data,
             columns=self.columns,
-        )
+        ).copy()
+
+    def kde(self):
+        return self.data().hvplot.kde()
+
+    def boxplot(self):
+        return self.data().hvplot.box(rot=45)
 
     # FIXME: Several types of plots that require different dimensions
     # (holoviews)
     @property
     def plot(self) -> pn.panel:
-        return pn.panel(
-            self.holomap.overlay(self.dim_key).opts(legend_position="right"),
-            sizing_mode="stretch_width",
+        gspec = pn.GridSpec(ncols=2, nrows=3, sizing_mode="stretch_width")
+        gspec[0, :] = self.holomap.overlay(self.dim_key).opts(
+            legend_position="top", legend_muted=True
         )
+        gspec[1:3, 0] = self.boxplot().opts(height=int(self.height * 1.5))
+        gspec[1:3, 1] = self.kde().opts(height=int(self.height * 1.5))
+        return gspec
 
     @property
     def caption(self):
         return self._fig_text[self.statistic]
 
     def __panel__(self) -> Union[pn.panel, pn.Column, pn.pane.Alert]:
-        if self.datastore.n_sample_sets_ids < 1:
+        if self.datastore.n_sample_sets_ids < self._min_sample_sets:
             return self.sample_select_warning
         if self.statistic not in self._fig_text:
             raise ValueError("Invalid statistic")
@@ -175,9 +184,9 @@ class OnewayStats(BaseStats):
 
 
 class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
-    """Oneway statistics base figure
+    """Multiway statistics base figure
 
-    Create a base figure for oneway statistics plots.
+    Create a base figure for multiway statistics plots.
 
     Attributes:
 
@@ -209,6 +218,7 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
         default="Fst",
         doc="Select statistic. Names correspond to tskit method names.",
     )
+    dim_key = "sspair"
 
     def set_multichoice_options(self):
         """This method dynamically populates the `comparisons` widget with a
@@ -256,6 +266,43 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
         ]
         return comparisons_indexes
 
+    @property
+    def data_dict(self) -> dict:
+        data = self.data(indexes=self.indexes)
+        cmap = self.cmaps[self.colormap]
+        colormap_list = process_cmap(cmap.name, provider=cmap.provider)
+        data_dict = {
+            sspair: hv.Curve(
+                (self.make_windows(), data[sspair]),
+                self.position,
+                self.statistic_dim,
+            ).opts(color=colormap_list[i])
+            for i, sspair in enumerate(data.columns)
+        }
+        return data_dict
+
+    def kde(self):
+        return self.data(indexes=self.indexes).hvplot.kde()
+
+    def boxplot(self):
+        return self.data(indexes=self.indexes).hvplot.box(rot=45)
+
+    @property
+    def holomap(self) -> hv.HoloMap:
+        return hv.HoloMap(
+            self.data_dict, kdims=self.kdims, sizing_mode="stretch_width"
+        )
+
+    @property
+    def plot(self) -> pn.panel:
+        gspec = pn.GridSpec(ncols=2, nrows=2, sizing_mode="stretch_both")
+        gspec[0, :] = self.holomap.overlay(self.dim_key).opts(
+            legend_position="top"
+        )
+        gspec[1, 0] = self.boxplot()
+        gspec[1, 1] = self.kde()
+        return gspec
+
     @pn.depends(
         "mode", "statistic", "window_size", "colormap", "comparisons.value"
     )
@@ -268,6 +315,8 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
         self.set_multichoice_options()
         if self.datastore.n_sample_sets_ids < self._min_sample_sets:
             return self.sample_select_warning
+        if self.statistic not in self._fig_text:
+            raise ValueError("Invalid statistic")
         if self.comparisons.value == []:
             return pn.pane.Markdown(
                 "**Select which sample sets to compare to see this plot.**"
@@ -276,9 +325,6 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
             return pn.pane.Markdown(
                 "**Select which sample sets to compare to see this plot.**"
             )
-        if self.statistic not in self._fig_text:
-            raise ValueError("Invalid statistic")
-
         data = self.data(indexes=self.indexes)
         cmap = self.cmaps[self.colormap]
         colormap_list = process_cmap(cmap.name, provider=cmap.provider)
@@ -292,13 +338,33 @@ class MultiwayStats(BaseStats, MultiSampleSelectWarningMixin):
         }
         kdims = [hv.Dimension("sspair", label="Sample set combination")]
         holomap = hv.HoloMap(data_dict, kdims=kdims)
-        return pn.Column(
-            pn.panel(
-                holomap.overlay("sspair").opts(legend_position="right"),
-                sizing_mode="stretch_width",
-            ),
-            pn.pane.Markdown(self._fig_text[self.statistic]),
+
+        gspec = pn.GridSpec(ncols=2, nrows=3)
+        gspec[0, :] = holomap.overlay("sspair").opts(
+            legend_position="top", legend_muted=True, width=self.width
         )
+        gspec[1:3, 0] = self.boxplot().opts(height=int(self.height * 1.5))
+        gspec[1:3, 1] = self.kde().opts(height=int(self.height * 1.5))
+        if self._caption:
+            return pn.Column(gspec, self.caption)
+        return gspec
+
+        # return pn.Column(
+        #     pn.panel(
+        #         holomap.overlay("sspair").opts(legend_position="right"),
+        #         sizing_mode="stretch_width",
+        #     ),
+        #     pn.pane.Markdown(self._fig_text[self.statistic]),
+        # )
+        # return self.plot()
+        # return self.kde()
+        # return pn.Column(
+        #     pn.panel(
+        #         holomap.overlay("sspair").opts(legend_position="right"),
+        #         sizing_mode=self.sizing_mode,
+        #     ),
+        #     pn.pane.Markdown(self._fig_text[self.statistic]),
+        # )
 
 
 __all__ = (
