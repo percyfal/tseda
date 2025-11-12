@@ -140,12 +140,6 @@ The available widgets are available in the `__all__` variable
 widgets.__all__
 ```
 
-```{python}
-import os
-MONKEYFLOWER=os.environ["MONKEYFLOWER"]
-ds = datastore.DataStore(tsm=MONKEYFLOWER)
-```
-
 Common to all widgets is that they require a datastore argument. In
 addition, there are options for controlling figure appearance, size,
 font size, and more. We first demonstrate the functionality using the

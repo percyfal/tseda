@@ -21,7 +21,7 @@ hv.extension("bokeh")
 pn.extension(sizing_mode="stretch_width")
 
 
-class OnewayStats(widgets.OnewayStats, TooltipMixin):
+class OnewayStats(widgets.OnewayHoloviewsStats, TooltipMixin):
     _tooltip = (
         "Oneway statistical plot. The colors can be modified "
         "in the sample set editor page."
@@ -45,7 +45,7 @@ class OnewayStats(widgets.OnewayStats, TooltipMixin):
         )
 
 
-class MultiwayStats(widgets.MultiwayStats, TooltipMixin):
+class MultiwayStats(widgets.MultiwayHoloviewsStats, TooltipMixin):
     _tooltip = (
         "Multiway statistical plot. The colors can be modified "
         "in the colormap dropdown list."

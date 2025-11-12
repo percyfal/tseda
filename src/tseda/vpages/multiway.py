@@ -14,7 +14,7 @@ hv.extension("bokeh")
 pn.extension(sizing_mode="stretch_width")
 
 
-class MultiwayStats(widgets.MultiwayStats, TooltipMixin):
+class MultiwayStats(widgets.MultiwayHoloviewsStats, TooltipMixin):
     _tooltip = (
         "Multiway statistical plot. The colors can be modified "
         "in the colormap dropdown list."
@@ -66,8 +66,20 @@ class StatsPage(View):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.multiway = MultiwayStats(
+        self.line = MultiwayStats(
             datastore=self.datastore, sizing_mode="stretch_width"
+        )
+        self.box = MultiwayStats(
+            datastore=self.datastore,
+            sizing_mode="stretch_width",
+            plotfun="box",
+            height=int(self.line.height * 1.5),
+        )
+        self.kde = MultiwayStats(
+            datastore=self.datastore,
+            sizing_mode="stretch_width",
+            plotfun="kde",
+            height=int(self.line.height * 1.5),
         )
         self.sample_sets = self.datastore.sample_sets_table
 
@@ -77,9 +89,12 @@ class StatsPage(View):
         Returns:
             pn.Column: The layout for the main content area.
         """
+        gspec = pn.GridSpec(ncols=2, nrows=3, sizing_mode="stretch_width")
+        gspec[0, :] = pn.Column(self.line.tooltip, self.line)
+        gspec[1:3, 0] = self.box
+        gspec[1:3, 1] = self.kde
         return pn.Column(
-            self.multiway.tooltip,
-            self.multiway,
+            gspec,
             name="Multiway Statistics Plot",
         )
 
@@ -104,6 +119,6 @@ class StatsPage(View):
                 ),
                 sizing_mode="stretch_width",
             ),
-            self.multiway.sidebar,
+            self.line.sidebar,
             self.sample_sets.sidebar_table,
         )

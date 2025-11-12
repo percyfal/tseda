@@ -14,7 +14,7 @@ hv.extension("bokeh")
 pn.extension(sizing_mode="stretch_width")
 
 
-class OnewayStats(widgets.OnewayStats, TooltipMixin):
+class OnewayStats(widgets.OnewayHoloviewsStats, TooltipMixin):
     _tooltip = (
         "Oneway statistical plot. The colors can be modified "
         "in the sample set editor page."
@@ -65,9 +65,22 @@ class StatsPage(View):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.oneway = OnewayStats(
+        self.line = OnewayStats(
             datastore=self.datastore, sizing_mode="stretch_width"
         )
+        self.box = OnewayStats(
+            datastore=self.datastore,
+            sizing_mode="stretch_width",
+            plotfun="box",
+            height=int(self.line.height * 1.5),
+        )
+        self.kde = OnewayStats(
+            datastore=self.datastore,
+            sizing_mode="stretch_width",
+            plotfun="kde",
+            height=int(self.line.height * 1.5),
+        )
+
         self.sample_sets = self.datastore.sample_sets_table
 
     def __panel__(self):
@@ -76,9 +89,12 @@ class StatsPage(View):
         Returns:
             pn.Column: The layout for the main content area.
         """
+        gspec = pn.GridSpec(ncols=2, nrows=3, sizing_mode="stretch_width")
+        gspec[0, :] = pn.Column(self.line.tooltip, self.line)
+        gspec[1:3, 0] = self.box
+        gspec[1:3, 1] = self.kde
         return pn.Column(
-            self.oneway.tooltip,
-            self.oneway,
+            gspec,
             name="Oneway Statistics Plot",
         )
 
@@ -103,6 +119,6 @@ class StatsPage(View):
                 ),
                 sizing_mode="stretch_width",
             ),
-            self.oneway.sidebar,
+            self.line.sidebar,
             self.sample_sets.sidebar_table,
         )
